@@ -1,0 +1,60 @@
+@import "tailwindcss";
+
+:root {
+  --background: #fffaf5;
+  --foreground: #1c1712;
+  --muted: #f3e9de;
+  --muted-foreground: #6c5a48;
+  --card: #fff7ee;
+  --border: #eadac6;
+  --input: #fff4e8;
+  --accent: #f65c32;
+  --accent-foreground: #fff7f2;
+  --secondary: #ffb08a;
+  --secondary-foreground: #2e160e;
+  --destructive: #c42d20;
+  --color-accent-soft: rgba(246, 92, 50, 0.22);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-card: var(--card);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-destructive: var(--destructive);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+.dark {
+  --background: #120f0c;
+  --foreground: #f9f3ec;
+  --muted: #221b16;
+  --muted-foreground: #d0bda9;
+  --card: #19140f;
+  --border: #32261c;
+  --input: #241b14;
+  --accent: #ff7a4f;
+  --accent-foreground: #2f1208;
+  --secondary: #723621;
+  --secondary-foreground: #ffd9c9;
+  --destructive: #ee4a3a;
+  --color-accent-soft: rgba(255, 122, 79, 0.28);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+* {
+  border-color: var(--border);
+}
