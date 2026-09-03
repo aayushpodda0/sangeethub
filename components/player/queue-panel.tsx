@@ -62,7 +62,9 @@ export function QueuePanel() {
                   <GripVertical className="size-4 shrink-0 cursor-grab text-muted-foreground" aria-hidden />
                   <div className="min-w-0 flex-1">
                     <p className="truncate">{track.title}</p>
-                    <p className="truncate text-xs text-muted-foreground">{track.artistName}</p>
+                    <p className="truncate text-xs text-muted-foreground">
+                      {track.artistNames.join(", ")}
+                    </p>
                   </div>
                   {index !== currentIndex && (
                     <button

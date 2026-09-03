@@ -109,7 +109,7 @@ export function PlayerBar() {
             />
             <div className="min-w-0">
               <p className="truncate text-sm font-medium">{track.title}</p>
-              <p className="truncate text-xs text-muted-foreground">{track.artistName}</p>
+              <p className="truncate text-xs text-muted-foreground">{track.artistNames.join(", ")}</p>
             </div>
           </div>
 

@@ -49,7 +49,7 @@ export function TrackRow({ track, tracks }: { track: ProviderTrack; tracks: Prov
       <div className="min-w-0 flex-1">
         <p className={cn("truncate text-sm font-medium", isCurrent && "text-accent")}>{track.title}</p>
         <p className="truncate text-xs text-muted-foreground">
-          {track.artistName} • {track.albumTitle}
+          {track.artistNames.join(", ")} • {track.albumTitle}
         </p>
       </div>
 

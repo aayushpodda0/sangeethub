@@ -1,23 +1,12 @@
-import { Activity, LanguageCode, Mood } from "@prisma/client";
+import type { DiscoveryTrack } from "@/types/music";
 
-export type ProviderTrack = {
-  id: string;
-  title: string;
-  artistName: string;
-  albumTitle: string;
-  durationSeconds: number;
-  previewUrl: string;
-  artworkUrl?: string | null;
-  language: LanguageCode;
-  moods: Mood[];
-  activities: Activity[];
-  tempo: number;
-  popularity: number;
-};
+// The canonical track shape used across the whole app (search, player, track/album/artist pages)
+// is DiscoveryTrack, defined in types/music.ts. Aliased here so provider consumers can keep
+// importing "ProviderTrack" without caring where the canonical type lives.
+export type ProviderTrack = DiscoveryTrack;
 
 export interface MusicProvider {
   name: string;
   searchTracks(query: string): Promise<ProviderTrack[]>;
   getTrackById(trackId: string): Promise<ProviderTrack | null>;
 }
-

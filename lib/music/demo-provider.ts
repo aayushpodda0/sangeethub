@@ -1,38 +1,16 @@
 import type { Prisma } from "@prisma/client";
 
 import { prisma } from "@/lib/db/prisma";
+import { toDiscoveryTrack } from "@/lib/music/serializers";
 import type { MusicProvider, ProviderTrack } from "@/lib/music/provider";
-
-type TrackWithRelations = Prisma.TrackGetPayload<{
-  include: {
-    album: true;
-    artists: { include: { artist: true } };
-  };
-}>;
-
-function toProviderTrack(track: TrackWithRelations): ProviderTrack {
-  return {
-    id: track.id,
-    title: track.title,
-    artistName: track.artists.map((entry) => entry.artist.name).join(", "),
-    albumTitle: track.album.title,
-    durationSeconds: track.durationSeconds,
-    previewUrl: track.previewUrl,
-    artworkUrl: track.artworkUrl,
-    language: track.language,
-    moods: track.moods,
-    activities: track.activities,
-    tempo: track.tempo,
-    popularity: track.popularity,
-  };
-}
 
 const trackWithRelations = {
   album: true,
   artists: {
-    include: {
-      artist: true,
-    },
+    include: { artist: true },
+  },
+  genres: {
+    include: { genre: true },
   },
 } satisfies Prisma.TrackInclude;
 
@@ -57,7 +35,7 @@ export class DemoMusicProvider implements MusicProvider {
       take: 25,
     });
 
-    return tracks.map(toProviderTrack);
+    return tracks.map(toDiscoveryTrack);
   }
 
   async getTrackById(trackId: string): Promise<ProviderTrack | null> {
@@ -66,6 +44,6 @@ export class DemoMusicProvider implements MusicProvider {
       include: trackWithRelations,
     });
 
-    return track ? toProviderTrack(track) : null;
+    return track ? toDiscoveryTrack(track) : null;
   }
 }
