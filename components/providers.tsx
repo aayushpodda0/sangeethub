@@ -6,6 +6,8 @@ import { ThemeProvider } from "next-themes";
 import { useState, type PropsWithChildren } from "react";
 import { Toaster } from "sonner";
 
+import { PlayerShell } from "@/components/player/player-shell";
+
 export function Providers({ children }: PropsWithChildren) {
   const [queryClient] = useState(() => new QueryClient());
 
@@ -13,7 +15,7 @@ export function Providers({ children }: PropsWithChildren) {
     <SessionProvider>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
         <QueryClientProvider client={queryClient}>
-          {children}
+          <PlayerShell>{children}</PlayerShell>
           <Toaster richColors />
         </QueryClientProvider>
       </ThemeProvider>

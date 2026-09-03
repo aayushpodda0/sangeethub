@@ -1,21 +1,8 @@
 import { hash } from "bcryptjs";
-import { NextResponse } from "next/server";
 
+import { apiError, apiSuccess } from "@/lib/api/response";
 import { signupSchema } from "@/lib/auth/schemas";
 import { prisma } from "@/lib/db/prisma";
-
-type ApiErrorResponse = {
-  error: {
-    code: string;
-    message: string;
-    details?: unknown;
-  };
-};
-
-function apiError(status: number, code: string, message: string, details?: unknown) {
-  const body: ApiErrorResponse = { error: { code, message, details } };
-  return NextResponse.json(body, { status });
-}
 
 async function ensureUniqueUsername(baseUsername: string) {
   const normalized = baseUsername.toLowerCase();
@@ -36,37 +23,50 @@ async function ensureUniqueUsername(baseUsername: string) {
 }
 
 export async function POST(request: Request) {
-  const json = await request.json();
-  const parsed = signupSchema.safeParse(json);
+  let json: unknown;
+  try {
+    json = await request.json();
+  } catch {
+    return apiError(400, "INVALID_JSON", "Request body must be valid JSON.");
+  }
 
+  const parsed = signupSchema.safeParse(json);
   if (!parsed.success) {
     return apiError(400, "VALIDATION_ERROR", "Invalid signup details", parsed.error.flatten());
   }
 
-  const email = parsed.data.email.toLowerCase();
-  const existingUser = await prisma.user.findUnique({ where: { email } });
-  if (existingUser) {
-    return apiError(409, "EMAIL_EXISTS", "An account already exists with this email.");
+  try {
+    const email = parsed.data.email.toLowerCase();
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+    if (existingUser) {
+      return apiError(409, "EMAIL_EXISTS", "An account already exists with this email.");
+    }
+
+    const username = await ensureUniqueUsername(parsed.data.username);
+    const passwordHash = await hash(parsed.data.password, 12);
+
+    const user = await prisma.user.create({
+      data: {
+        email,
+        username,
+        name: parsed.data.name,
+        passwordHash,
+      },
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        name: true,
+      },
+    });
+
+    return apiSuccess(user, 201);
+  } catch (error) {
+    console.error("[signup] failed:", error);
+    return apiError(
+      500,
+      "SIGNUP_FAILED",
+      "Something went wrong creating your account. Please check that the database is running and try again.",
+    );
   }
-
-  const username = await ensureUniqueUsername(parsed.data.username);
-  const passwordHash = await hash(parsed.data.password, 12);
-
-  const user = await prisma.user.create({
-    data: {
-      email,
-      username,
-      name: parsed.data.name,
-      passwordHash,
-    },
-    select: {
-      id: true,
-      email: true,
-      username: true,
-      name: true,
-    },
-  });
-
-  return NextResponse.json({ data: user }, { status: 201 });
 }
-

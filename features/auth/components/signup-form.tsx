@@ -30,35 +30,45 @@ export function SignupForm() {
 
   const onSubmit = form.handleSubmit(async (values) => {
     setIsSubmitting(true);
-    const response = await fetch("/api/auth/signup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(values),
-    });
+    try {
+      const response = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      });
 
-    if (!response.ok) {
+      if (!response.ok) {
+        let message = "Signup failed. Please try again.";
+        try {
+          const payload = (await response.json()) as { error?: { message?: string } };
+          message = payload.error?.message ?? message;
+        } catch {
+          // Response wasn't JSON (e.g. a server crash) — fall back to the generic message.
+        }
+        toast.error(message);
+        return;
+      }
+
+      const loginResult = await signIn("credentials", {
+        email: values.email,
+        password: values.password,
+        redirect: false,
+      });
+
+      if (loginResult?.error) {
+        toast.error("Account created, but automatic sign-in failed.");
+        router.push("/login");
+        return;
+      }
+
+      toast.success("Account created successfully");
+      router.push("/home");
+      router.refresh();
+    } catch {
+      toast.error("Unable to reach the server. Please make sure the database and app are running.");
+    } finally {
       setIsSubmitting(false);
-      const payload = (await response.json()) as { error?: { message?: string } };
-      toast.error(payload.error?.message ?? "Signup failed");
-      return;
     }
-
-    const loginResult = await signIn("credentials", {
-      email: values.email,
-      password: values.password,
-      redirect: false,
-    });
-    setIsSubmitting(false);
-
-    if (loginResult?.error) {
-      toast.error("Account created, but automatic sign-in failed.");
-      router.push("/login");
-      return;
-    }
-
-    toast.success("Account created successfully");
-    router.push("/home");
-    router.refresh();
   });
 
   return (
@@ -100,4 +110,3 @@ export function SignupForm() {
     </form>
   );
 }
-
