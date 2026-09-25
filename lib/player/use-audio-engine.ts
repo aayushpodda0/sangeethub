@@ -44,6 +44,14 @@ export function useAudioEngine() {
       setIsLoading(true);
       audio.src = track.previewUrl;
       audio.currentTime = 0;
+
+      fetch("/api/history", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ trackId: track.id }),
+      }).catch(() => {
+        // Non-critical: history recording failures shouldn't interrupt playback.
+      });
     }
   }, [track]);
 

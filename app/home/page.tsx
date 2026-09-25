@@ -8,17 +8,14 @@ import { Button } from "@/components/ui/button";
 import { prisma } from "@/lib/db/prisma";
 import { getAuthSession } from "@/lib/auth/session";
 import { toDiscoveryTrack } from "@/lib/music/serializers";
+import { buildRecommendationContext } from "@/lib/recommendations/context";
+import { DeterministicRecommendationService } from "@/lib/recommendations/deterministic-service";
 
 export const metadata: Metadata = {
   title: "Home | SangeetHub",
 };
 
-const recommendationReasons = [
-  "Because you listen to this artist.",
-  "Similar genre to your study playlist.",
-  "Popular among listeners with similar preferences.",
-  "Matches your selected mood.",
-];
+const recommendationService = new DeterministicRecommendationService();
 
 export default async function DashboardPage() {
   const session = await getAuthSession();
@@ -26,7 +23,7 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  const [trending, playlists, artists, albums] = await Promise.all([
+  const [trending, playlists, artists, albums, recommendationContext] = await Promise.all([
     prisma.track.findMany({
       include: {
         album: true,
@@ -55,7 +52,25 @@ export default async function DashboardPage() {
       orderBy: [{ releaseDate: "desc" }],
       take: 6,
     }),
+    buildRecommendationContext(session.user.id),
   ]);
+
+  const recommendationResults = await recommendationService.getTrackRecommendations(recommendationContext);
+  const recommendedTrackIds = recommendationResults.slice(0, 4).map((r) => r.trackId);
+  const recommendedTracks =
+    recommendedTrackIds.length > 0
+      ? await prisma.track.findMany({
+          where: { id: { in: recommendedTrackIds } },
+          select: { id: true, title: true },
+        })
+      : [];
+  const trackTitleById = new Map(recommendedTracks.map((t) => [t.id, t.title]));
+
+  const recommendationCards = recommendationResults.slice(0, 4).map((r) => ({
+    trackId: r.trackId,
+    trackTitle: trackTitleById.get(r.trackId) ?? "",
+    ...r.explanation,
+  }));
 
   const trendingTracks = trending.map(toDiscoveryTrack);
 
@@ -76,14 +91,21 @@ export default async function DashboardPage() {
         </div>
       </header>
 
-      <section className="mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {recommendationReasons.map((reason) => (
-          <article key={reason} className="rounded-xl border border-border bg-card p-4">
-            <p className="text-xs uppercase tracking-wide text-accent">Why am I seeing this?</p>
-            <p className="mt-2 text-sm">{reason}</p>
-          </article>
-        ))}
-      </section>
+      {recommendationCards.length > 0 && (
+        <section className="mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {recommendationCards.map((card) => (
+            <Link
+              key={card.trackId}
+              href={`/tracks/${card.trackId}`}
+              className="rounded-xl border border-border bg-card p-4 transition hover:border-accent/50"
+            >
+              <p className="text-xs uppercase tracking-wide text-accent">{card.title}</p>
+              <p className="mt-2 truncate text-sm font-medium">{card.trackTitle}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{card.detail}</p>
+            </Link>
+          ))}
+        </section>
+      )}
 
       <div className="grid gap-8 lg:grid-cols-[2fr_1fr]">
         <TrackList title="Trending regional music" tracks={trendingTracks} />
