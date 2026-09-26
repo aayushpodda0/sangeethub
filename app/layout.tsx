@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
-import { PlayerBar } from "@/components/player/player-bar";
 import { Providers } from "@/components/providers";
 import "./globals.css";
 
@@ -28,10 +27,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       suppressHydrationWarning
     >
       <body className="min-h-full bg-background text-foreground">
-        <Providers>
-          <div className="pb-56 md:pb-44">{children}</div>
-          <PlayerBar />
-        </Providers>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
