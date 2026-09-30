@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { PlayTrackButton } from "@/components/player/play-track-button";
+import { ShareButton } from "@/components/shared/share-button";
 import { prisma } from "@/lib/db/prisma";
 import { toDiscoveryTrack } from "@/lib/music/serializers";
 
@@ -27,7 +28,10 @@ export default async function TrackPage({ params }: TrackPageProps) {
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-4xl px-4 py-6 sm:px-6">
-      <h1 className="text-3xl font-semibold tracking-tight">{mapped.title}</h1>
+      <div className="flex items-start justify-between gap-3">
+        <h1 className="text-3xl font-semibold tracking-tight">{mapped.title}</h1>
+        <ShareButton label="Share track" />
+      </div>
       <p className="mt-2 text-sm text-muted-foreground">
         {mapped.artistNames.join(", ")} • {mapped.albumTitle}
       </p>

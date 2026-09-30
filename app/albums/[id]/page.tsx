@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { TrackList } from "@/components/music/track-list";
+import { ShareButton } from "@/components/shared/share-button";
 import { prisma } from "@/lib/db/prisma";
 import { toDiscoveryTrack } from "@/lib/music/serializers";
 
@@ -34,7 +35,10 @@ export default async function AlbumPage({ params }: AlbumPageProps) {
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-5xl px-4 py-6 sm:px-6">
-      <h1 className="text-3xl font-semibold tracking-tight">{album.title}</h1>
+      <div className="flex items-start justify-between gap-3">
+        <h1 className="text-3xl font-semibold tracking-tight">{album.title}</h1>
+        <ShareButton label="Share album" />
+      </div>
       <p className="mt-2 text-sm text-muted-foreground">
         {album.primaryArtist.name} • {album.language} • {new Date(album.releaseDate).getFullYear()}
       </p>

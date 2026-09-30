@@ -9,6 +9,7 @@ import { toast } from "sonner";
 
 import { AddTrackSearch } from "@/components/playlists/add-track-search";
 import { PlaylistTrackRow } from "@/components/playlists/playlist-track-row";
+import { ShareButton } from "@/components/shared/share-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -192,11 +193,14 @@ export function PlaylistDetail({ playlistId }: { playlistId: string }) {
           </div>
         </div>
 
-        {playlist.canEditSettings && (
-          <Button variant="outline" size="sm" onClick={() => setShowSettings((v) => !v)}>
-            {showSettings ? "Close settings" : "Settings"}
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          <ShareButton label="Share playlist" />
+          {playlist.canEditSettings && (
+            <Button variant="outline" size="sm" onClick={() => setShowSettings((v) => !v)}>
+              {showSettings ? "Close settings" : "Settings"}
+            </Button>
+          )}
+        </div>
       </div>
 
       {showSettings && playlist.canEditSettings && (
