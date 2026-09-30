@@ -1,4 +1,5 @@
 import { getToken } from "next-auth/jwt";
+import { VoteType } from "@prisma/client";
 import type { Server, Socket } from "socket.io";
 
 import { prisma } from "@/lib/db/prisma";
@@ -16,6 +17,10 @@ type AppSocket = Socket<ClientToServerEvents, ServerToClientEvents> & {
 
 function roomChannel(roomCode: string) {
   return `party:${roomCode}`;
+}
+
+function toClientVote(voteType: VoteType): "UP" | "DOWN" {
+  return voteType === VoteType.UPVOTE ? "UP" : "DOWN";
 }
 
 /** Derives the live playback position from the DB's stored (startedAt, playbackPosition) pair. */
@@ -71,7 +76,7 @@ async function loadQueue(roomId: string, viewerUserId: string): Promise<PartyQue
     addedById: item.addedById,
     addedByName: item.addedBy.name ?? item.addedBy.username,
     voteScore: item.voteScore,
-    myVote: item.votes[0]?.voteType ?? null,
+    myVote: item.votes[0] ? toClientVote(item.votes[0].voteType) : null,
   }));
 }
 
@@ -240,23 +245,31 @@ export function registerPartyHandlers(io: Server<ClientToServerEvents, ServerToC
         const room = await prisma.partyRoom.findUnique({ where: { roomCode } });
         if (!room) return;
 
+        const queueItem = await prisma.partyQueueItem.findUnique({ where: { id: queueItemId } });
+        if (!queueItem || queueItem.roomId !== room.id) return;
+
+        const databaseVoteType = voteType === "UP" ? VoteType.UPVOTE : VoteType.DOWNVOTE;
+
         const existing = await prisma.queueVote.findUnique({
           where: { queueItemId_userId: { queueItemId, userId: socket.data.userId } },
         });
 
-        if (existing && existing.voteType === voteType) {
+        if (existing && existing.voteType === databaseVoteType) {
           await prisma.queueVote.delete({ where: { id: existing.id } });
         } else if (existing) {
-          await prisma.queueVote.update({ where: { id: existing.id }, data: { voteType } });
+          await prisma.queueVote.update({
+            where: { id: existing.id },
+            data: { voteType: databaseVoteType },
+          });
         } else {
           await prisma.queueVote.create({
-            data: { queueItemId, userId: socket.data.userId, voteType },
+            data: { queueItemId, userId: socket.data.userId, voteType: databaseVoteType },
           });
         }
 
         const [ups, downs] = await Promise.all([
-          prisma.queueVote.count({ where: { queueItemId, voteType: "UP" } }),
-          prisma.queueVote.count({ where: { queueItemId, voteType: "DOWN" } }),
+          prisma.queueVote.count({ where: { queueItemId, voteType: VoteType.UPVOTE } }),
+          prisma.queueVote.count({ where: { queueItemId, voteType: VoteType.DOWNVOTE } }),
         ]);
         await prisma.partyQueueItem.update({
           where: { id: queueItemId },

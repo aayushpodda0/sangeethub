@@ -17,7 +17,11 @@ import { loginSchema, type LoginInput } from "@/lib/auth/schemas";
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") ?? "/home";
+  const requestedCallbackUrl = searchParams.get("callbackUrl");
+  const callbackUrl =
+    requestedCallbackUrl?.startsWith("/") && !requestedCallbackUrl.startsWith("//")
+      ? requestedCallbackUrl
+      : "/home";
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<LoginInput>({

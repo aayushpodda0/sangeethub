@@ -48,6 +48,40 @@ async function fetchDiscover(params: { mood?: string; activity?: string; languag
   return body.data.tracks;
 }
 
+function ChipRow({
+  label,
+  options,
+  value,
+  onChange,
+}: {
+  label: string;
+  options: readonly string[];
+  value: string | null;
+  onChange: (v: string | null) => void;
+}) {
+  return (
+    <div className="mb-4">
+      <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</h2>
+      <div className="flex flex-wrap gap-2">
+        {options.map((option) => (
+          <button
+            key={option}
+            type="button"
+            aria-pressed={value === option}
+            onClick={() => onChange(value === option ? null : option)}
+            className={cn(
+              "rounded-full border border-border px-3 py-1.5 text-sm transition",
+              value === option ? "border-accent bg-accent/10 text-accent" : "text-muted-foreground hover:bg-muted",
+            )}
+          >
+            {titleCase(option)}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 type Props = {
   independentArtists: { id: string; name: string; city: string | null; region: string | null }[];
   languageCounts: { language: string; count: number }[];
@@ -66,40 +100,6 @@ export function DiscoverPageContent({ independentArtists, languageCounts }: Prop
       fetchDiscover({ mood: mood ?? undefined, activity: activity ?? undefined, language: language ?? undefined }),
     enabled: hasFilter,
   });
-
-  function ChipRow({
-    label,
-    options,
-    value,
-    onChange,
-  }: {
-    label: string;
-    options: readonly string[];
-    value: string | null;
-    onChange: (v: string | null) => void;
-  }) {
-    return (
-      <div className="mb-4">
-        <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</h2>
-        <div className="flex flex-wrap gap-2">
-          {options.map((option) => (
-            <button
-              key={option}
-              type="button"
-              aria-pressed={value === option}
-              onClick={() => onChange(value === option ? null : option)}
-              className={cn(
-                "rounded-full border border-border px-3 py-1.5 text-sm transition",
-                value === option ? "border-accent bg-accent/10 text-accent" : "text-muted-foreground hover:bg-muted",
-              )}
-            >
-              {titleCase(option)}
-            </button>
-          ))}
-        </div>
-      </div>
-    );
-  }
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-6xl px-4 py-6 sm:px-6">
@@ -138,7 +138,7 @@ export function DiscoverPageContent({ independentArtists, languageCounts }: Prop
             <ul className="space-y-1">
               {tracks.map((track) => (
                 <li key={track.id} className="flex items-center gap-3 rounded-xl px-2 py-2 hover:bg-muted">
-                  <div className="size-10 shrink-0 rounded-lg bg-gradient-to-br from-accent to-secondary" />
+                  <div className="size-10 shrink-0 rounded-lg bg-linear-to-br from-accent to-secondary" />
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium">{track.title}</p>
                     <p className="truncate text-xs text-muted-foreground">

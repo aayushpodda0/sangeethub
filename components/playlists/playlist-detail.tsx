@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link2, Lock, Trash2, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 import { AddTrackSearch } from "@/components/playlists/add-track-search";
@@ -34,13 +34,13 @@ export function PlaylistDetail({ playlistId }: { playlistId: string }) {
 
   const [nameDraft, setNameDraft] = useState("");
   const [descriptionDraft, setDescriptionDraft] = useState("");
+  const [lastSyncedPlaylistId, setLastSyncedPlaylistId] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (playlist) {
-      setNameDraft(playlist.name);
-      setDescriptionDraft(playlist.description ?? "");
-    }
-  }, [playlist]);
+  if (playlist && playlist.id !== lastSyncedPlaylistId) {
+    setLastSyncedPlaylistId(playlist.id);
+    setNameDraft(playlist.name);
+    setDescriptionDraft(playlist.description ?? "");
+  }
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ["playlist", playlistId] });
 
