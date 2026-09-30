@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link2, Lock, Trash2, Users } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -168,7 +169,15 @@ export function PlaylistDetail({ playlistId }: { playlistId: string }) {
           {playlist.description && <p className="mt-1 text-sm text-muted-foreground">{playlist.description}</p>}
           <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
             <span>
-              by {playlist.isOwner ? "you" : playlist.owner.name} • {playlist.tracks.length} tracks
+              by{" "}
+              {playlist.isOwner ? (
+                "you"
+              ) : (
+                <Link href={`/profile/${playlist.owner.username}`} className="hover:underline">
+                  {playlist.owner.name}
+                </Link>
+              )}{" "}
+              • {playlist.tracks.length} tracks
             </span>
             {!playlist.isPublic && (
               <span className="flex items-center gap-1">
@@ -292,14 +301,16 @@ export function PlaylistDetail({ playlistId }: { playlistId: string }) {
           <h2 className="mb-2 text-sm font-semibold text-muted-foreground">Collaborators</h2>
           <ul className="flex flex-wrap gap-2">
             {playlist.collaborators.map((c) => (
-              <li
-                key={c.userId}
-                className={cn(
-                  "rounded-full border border-border bg-card px-3 py-1 text-xs",
-                  c.permission === "MODERATOR" && "border-accent/40 text-accent",
-                )}
-              >
-                {c.name ?? c.username} • {c.permission.toLowerCase()}
+              <li key={c.userId}>
+                <Link
+                  href={`/profile/${c.username}`}
+                  className={cn(
+                    "block rounded-full border border-border bg-card px-3 py-1 text-xs hover:border-accent/50",
+                    c.permission === "MODERATOR" && "border-accent/40 text-accent",
+                  )}
+                >
+                  {c.name ?? c.username} • {c.permission.toLowerCase()}
+                </Link>
               </li>
             ))}
           </ul>
@@ -312,7 +323,9 @@ export function PlaylistDetail({ playlistId }: { playlistId: string }) {
           <ul className="space-y-1.5 text-xs text-muted-foreground">
             {playlist.activities.map((activity) => (
               <li key={activity.id}>
-                <span className="text-foreground">{activity.actor.name ?? activity.actor.username}</span>{" "}
+                <Link href={`/profile/${activity.actor.username}`} className="text-foreground hover:underline">
+                  {activity.actor.name ?? activity.actor.username}
+                </Link>{" "}
                 {activity.message.toLowerCase()}
               </li>
             ))}

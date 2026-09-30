@@ -1,6 +1,7 @@
 "use client";
 
 import { GripVertical, Pause, Play, X } from "lucide-react";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { usePlayerStore } from "@/lib/player/store";
@@ -71,7 +72,10 @@ export function PlaylistTrackRow({
       <div className="min-w-0 flex-1">
         <p className={cn("truncate text-sm font-medium", isCurrent && "text-accent")}>{entry.track.title}</p>
         <p className="truncate text-xs text-muted-foreground">
-          {entry.track.artistNames.join(", ")} • added by {entry.addedBy.name ?? entry.addedBy.username}
+          {entry.track.artistNames.join(", ")} • added by{" "}
+          <Link href={`/profile/${entry.addedBy.username}`} className="hover:underline">
+            {entry.addedBy.name ?? entry.addedBy.username}
+          </Link>
         </p>
       </div>
 

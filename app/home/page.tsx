@@ -78,7 +78,12 @@ export default async function DashboardPage() {
     <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-6">
       <header className="mb-8 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Welcome back, {session.user.name}</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            Welcome back,{" "}
+            <Link href={`/profile/${session.user.username}`} className="hover:underline">
+              {session.user.name}
+            </Link>
+          </h1>
           <p className="text-sm text-muted-foreground">
             Discover music across moods, languages, and regional scenes.
           </p>
