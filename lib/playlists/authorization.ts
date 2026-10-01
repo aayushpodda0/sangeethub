@@ -17,6 +17,7 @@ function loadPlaylist(playlistId: string) {
     where: { id: playlistId },
     include: {
       owner: { select: { id: true, name: true, username: true } },
+      folder: { select: { id: true, name: true } },
       collaborations: {
         include: { user: { select: { id: true, name: true, username: true } } },
       },

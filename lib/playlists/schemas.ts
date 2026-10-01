@@ -12,6 +12,7 @@ export const updatePlaylistSchema = z.object({
   coverUrl: z.string().url("Must be a valid URL").nullable().optional(),
   isPublic: z.boolean().optional(),
   isCollaborative: z.boolean().optional(),
+  folderId: z.string().nullable().optional(),
 });
 
 export const addTrackSchema = z.object({

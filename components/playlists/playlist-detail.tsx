@@ -23,6 +23,15 @@ async function fetchPlaylist(id: string): Promise<SerializedPlaylist> {
   return body.data!;
 }
 
+type Folder = { id: string; name: string; playlistCount: number };
+
+async function fetchFolders(): Promise<Folder[]> {
+  const res = await fetch("/api/playlist-folders");
+  if (!res.ok) return [];
+  const body = (await res.json()) as { data: { folders: Folder[] } };
+  return body.data.folders;
+}
+
 export function PlaylistDetail({ playlistId }: { playlistId: string }) {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -32,6 +41,12 @@ export function PlaylistDetail({ playlistId }: { playlistId: string }) {
   const { data: playlist, isLoading, isError, error } = useQuery({
     queryKey: ["playlist", playlistId],
     queryFn: () => fetchPlaylist(playlistId),
+  });
+
+  const { data: folders } = useQuery({
+    queryKey: ["playlist-folders"],
+    queryFn: fetchFolders,
+    enabled: playlist?.canEditSettings === true,
   });
 
   const [nameDraft, setNameDraft] = useState("");
@@ -53,6 +68,7 @@ export function PlaylistDetail({ playlistId }: { playlistId: string }) {
         description: string | null;
         isPublic: boolean;
         isCollaborative: boolean;
+        folderId: string | null;
       }>,
     ) => {
       const res = await fetch(`/api/playlists/${playlistId}`, {
@@ -241,6 +257,25 @@ export function PlaylistDetail({ playlistId }: { playlistId: string }) {
               />
               Allow collaborators to add tracks
             </label>
+          </div>
+
+          <div className="flex items-center gap-2 border-t border-border pt-4 text-sm">
+            <label htmlFor="playlist-folder-select" className="shrink-0 text-muted-foreground">
+              Folder
+            </label>
+            <select
+              id="playlist-folder-select"
+              value={playlist.folder?.id ?? ""}
+              onChange={(e) => updateMutation.mutate({ folderId: e.target.value || null })}
+              className="rounded-lg border border-border bg-input px-2 py-1 text-sm"
+            >
+              <option value="">No folder</option>
+              {folders?.map((f) => (
+                <option key={f.id} value={f.id}>
+                  {f.name}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="flex flex-wrap items-center gap-2 border-t border-border pt-4">

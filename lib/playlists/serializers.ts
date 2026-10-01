@@ -12,6 +12,7 @@ export function serializePlaylist(access: PlaylistAccess, viewerId: string | und
     coverUrl: playlist.coverUrl,
     isPublic: playlist.isPublic,
     isCollaborative: playlist.isCollaborative,
+    folder: playlist.folder,
     createdAt: playlist.createdAt,
     updatedAt: playlist.updatedAt,
     owner: playlist.owner,

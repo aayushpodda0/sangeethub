@@ -51,6 +51,13 @@ export async function PATCH(request: Request, { params }: RouteParams) {
     return apiError(400, "VALIDATION_ERROR", "Invalid update", parsed.error.flatten());
   }
 
+  if (parsed.data.folderId) {
+    const folder = await prisma.playlistFolder.findUnique({ where: { id: parsed.data.folderId } });
+    if (!folder || folder.userId !== userId) {
+      return apiError(400, "INVALID_FOLDER", "That folder doesn't exist or isn't yours.");
+    }
+  }
+
   try {
     const activities: { type: "RENAMED" | "COLLAB_ENABLED" | "COLLAB_DISABLED"; message: string }[] = [];
     if (parsed.data.name && parsed.data.name !== access.playlist.name) {
@@ -65,6 +72,8 @@ export async function PATCH(request: Request, { params }: RouteParams) {
         message: parsed.data.isCollaborative ? "Collaboration enabled" : "Collaboration disabled",
       });
     }
+    // Folder moves are personal organization, not collaborative activity, so they don't
+    // get a PlaylistActivity entry - that feed is for things collaborators care about.
 
     await prisma.$transaction(async (tx) => {
       await tx.playlist.update({
@@ -75,6 +84,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
           coverUrl: parsed.data.coverUrl,
           isPublic: parsed.data.isPublic,
           isCollaborative: parsed.data.isCollaborative,
+          folderId: parsed.data.folderId,
         },
       });
 

@@ -37,6 +37,7 @@ export async function GET() {
         : { isPublic: true },
       include: {
         owner: { select: { id: true, name: true, username: true } },
+        folder: { select: { id: true, name: true } },
         _count: { select: { tracks: true } },
       },
       orderBy: { updatedAt: "desc" },
@@ -55,6 +56,7 @@ export async function GET() {
         trackCount: p._count.tracks,
         owner: p.owner,
         isMine: userId === p.ownerId,
+        folder: p.folder,
       })),
     });
   } catch (error) {
