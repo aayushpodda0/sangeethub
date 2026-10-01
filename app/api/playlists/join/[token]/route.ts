@@ -4,6 +4,48 @@ import { prisma } from "@/lib/db/prisma";
 
 type RouteParams = { params: Promise<{ token: string }> };
 
+export async function GET(_request: Request, { params }: RouteParams) {
+  const { token } = await params;
+  const session = await getAuthSession();
+  const userId = session?.user?.id;
+  if (!userId) {
+    return apiError(401, "UNAUTHENTICATED", "You need to be signed in to view this invite.");
+  }
+
+  try {
+    const invite = await prisma.playlistInvite.findUnique({
+      where: { token },
+      include: {
+        playlist: { select: { id: true, name: true, ownerId: true } },
+        createdBy: { select: { name: true, username: true } },
+      },
+    });
+
+    if (!invite) {
+      return apiError(404, "INVITE_NOT_FOUND", "This invite link is invalid.");
+    }
+    if (invite.expiresAt < new Date()) {
+      return apiError(410, "INVITE_EXPIRED", "This invite link has expired.");
+    }
+
+    const alreadyMember =
+      invite.playlist.ownerId === userId ||
+      (await prisma.playlistCollaboration.findUnique({
+        where: { playlistId_userId: { playlistId: invite.playlistId, userId } },
+      })) !== null;
+
+    return apiSuccess({
+      playlistId: invite.playlistId,
+      playlistName: invite.playlist.name,
+      invitedByName: invite.createdBy.name ?? invite.createdBy.username,
+      alreadyMember,
+    });
+  } catch (error) {
+    console.error("[playlists:join:preview] failed:", error);
+    return apiError(500, "INVITE_PREVIEW_FAILED", "Couldn't load this invite. Please try again.");
+  }
+}
+
 export async function POST(_request: Request, { params }: RouteParams) {
   const { token } = await params;
   const session = await getAuthSession();
