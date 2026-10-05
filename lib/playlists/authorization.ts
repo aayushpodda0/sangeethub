@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db/prisma";
+import { playlistRules } from "@/lib/playlists/rules";
 
 export type PlaylistAccess = {
   playlist: NonNullable<Awaited<ReturnType<typeof loadPlaylist>>>;
@@ -64,8 +65,8 @@ export async function getPlaylistAccess(
     : null;
 
   const isCollaborator = collaboration !== null;
-  const canView = playlist.isPublic || isOwner || isCollaborator;
-  const canAddTrack = isOwner || (playlist.isCollaborative && isCollaborator);
+  const canView = playlistRules.canView(playlist.isPublic, isOwner, isCollaborator);
+  const canAddTrack = playlistRules.canAddTrack(isOwner, playlist.isCollaborative, isCollaborator);
 
   return {
     playlist,
@@ -76,11 +77,7 @@ export async function getPlaylistAccess(
     canAddTrack,
     canReorder: canAddTrack,
     canInvite: isOwner,
-    canRemoveTrack: (addedById: string) => {
-      if (isOwner) return true;
-      if (!isCollaborator) return false;
-      if (addedById === userId) return true;
-      return collaboration?.canRemoveOthers === true || collaboration?.permission === "MODERATOR";
-    },
+    canRemoveTrack: (addedById: string) =>
+      playlistRules.canRemoveTrack({ isOwner, collaboration, addedById, userId }),
   };
 }

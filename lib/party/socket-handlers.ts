@@ -3,10 +3,10 @@ import { VoteType } from "@prisma/client";
 import type { Server, Socket } from "socket.io";
 
 import { prisma } from "@/lib/db/prisma";
+import { computePlaybackState } from "@/lib/party/playback-state";
 import type {
   ClientToServerEvents,
   PartyParticipantInfo,
-  PartyPlaybackState,
   PartyQueueItemInfo,
   ServerToClientEvents,
 } from "@/lib/party/types";
@@ -21,25 +21,6 @@ function roomChannel(roomCode: string) {
 
 function toClientVote(voteType: VoteType): "UP" | "DOWN" {
   return voteType === VoteType.UPVOTE ? "UP" : "DOWN";
-}
-
-/** Derives the live playback position from the DB's stored (startedAt, playbackPosition) pair. */
-function computePlaybackState(room: {
-  currentTrackId: string | null;
-  startedAt: Date | null;
-  playbackPosition: number;
-}): PartyPlaybackState {
-  const isPlaying = room.startedAt !== null;
-  const positionSeconds = isPlaying
-    ? room.playbackPosition + (Date.now() - room.startedAt!.getTime()) / 1000
-    : room.playbackPosition;
-
-  return {
-    currentTrackId: room.currentTrackId,
-    isPlaying,
-    positionSeconds,
-    asOf: Date.now(),
-  };
 }
 
 async function loadParticipants(roomId: string): Promise<PartyParticipantInfo[]> {

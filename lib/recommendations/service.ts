@@ -1,4 +1,4 @@
-import { Activity, LanguageCode, Mood } from "@prisma/client";
+import type { Activity, LanguageCode, Mood } from "@prisma/client";
 
 export type RecommendationExplanation = {
   code:
