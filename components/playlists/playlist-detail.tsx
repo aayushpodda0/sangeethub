@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Link2, Lock, Trash2, Users } from "lucide-react";
+import { Link2, Lock, Trash2, Users, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -140,6 +140,38 @@ export function PlaylistDetail({ playlistId }: { playlistId: string }) {
       await navigator.clipboard.writeText(url).catch(() => {});
       toast.success("Invite link copied to clipboard");
     },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  const updateCollaboratorMutation = useMutation({
+    mutationFn: async ({
+      userId,
+      permission,
+    }: {
+      userId: string;
+      permission: "CONTRIBUTOR" | "MODERATOR";
+    }) => {
+      const res = await fetch(`/api/playlists/${playlistId}/collaborators/${userId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ permission, canRemoveOthers: permission === "MODERATOR" }),
+      });
+      const body = (await res.json()) as { error?: { message: string } };
+      if (!res.ok) throw new Error(body.error?.message ?? "Couldn't update this collaborator");
+    },
+    onSuccess: invalidate,
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  const removeCollaboratorMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      const res = await fetch(`/api/playlists/${playlistId}/collaborators/${userId}`, {
+        method: "DELETE",
+      });
+      const body = (await res.json()) as { error?: { message: string } };
+      if (!res.ok) throw new Error(body.error?.message ?? "Couldn't remove this collaborator");
+    },
+    onSuccess: invalidate,
     onError: (err: Error) => toast.error(err.message),
   });
 
@@ -340,16 +372,54 @@ export function PlaylistDetail({ playlistId }: { playlistId: string }) {
           <h2 className="mb-2 text-sm font-semibold text-muted-foreground">Collaborators</h2>
           <ul className="flex flex-wrap gap-2">
             {playlist.collaborators.map((c) => (
-              <li key={c.userId}>
+              <li
+                key={c.userId}
+                className={cn(
+                  "flex items-center gap-1.5 rounded-full border border-border bg-card py-1 pl-3 pr-1.5 text-xs",
+                  c.permission === "MODERATOR" && "border-accent/40",
+                )}
+              >
                 <Link
                   href={`/profile/${c.username}`}
-                  className={cn(
-                    "block rounded-full border border-border bg-card px-3 py-1 text-xs hover:border-accent/50",
-                    c.permission === "MODERATOR" && "border-accent/40 text-accent",
-                  )}
+                  className={cn("hover:underline", c.permission === "MODERATOR" && "text-accent")}
                 >
-                  {c.name ?? c.username} • {c.permission.toLowerCase()}
+                  {c.name ?? c.username}
                 </Link>
+
+                {playlist.isOwner ? (
+                  <>
+                    <select
+                      value={c.permission}
+                      onChange={(e) =>
+                        updateCollaboratorMutation.mutate({
+                          userId: c.userId,
+                          permission: e.target.value as "CONTRIBUTOR" | "MODERATOR",
+                        })
+                      }
+                      disabled={updateCollaboratorMutation.isPending}
+                      aria-label={`Change ${c.name ?? c.username}'s permission`}
+                      className="rounded-full border-none bg-transparent text-xs text-muted-foreground"
+                    >
+                      <option value="CONTRIBUTOR">Contributor</option>
+                      <option value="MODERATOR">Moderator</option>
+                    </select>
+                    <button
+                      type="button"
+                      aria-label={`Remove ${c.name ?? c.username} as a collaborator`}
+                      onClick={() => {
+                        if (confirm(`Remove ${c.name ?? c.username} as a collaborator?`)) {
+                          removeCollaboratorMutation.mutate(c.userId);
+                        }
+                      }}
+                      disabled={removeCollaboratorMutation.isPending}
+                      className="rounded-full p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                    >
+                      <X className="size-3" />
+                    </button>
+                  </>
+                ) : (
+                  <span className="text-muted-foreground">{c.permission.toLowerCase()}</span>
+                )}
               </li>
             ))}
           </ul>

@@ -90,6 +90,15 @@ export async function POST(_request: Request, { params }: RouteParams) {
       if (!invite.playlist.isCollaborative) {
         await tx.playlist.update({ where: { id: invite.playlistId }, data: { isCollaborative: true } });
       }
+
+      await tx.playlistActivity.create({
+        data: {
+          playlistId: invite.playlistId,
+          actorId: userId,
+          type: "COLLABORATOR_JOINED",
+          message: "joined the playlist",
+        },
+      });
     });
 
     return apiSuccess({ playlistId: invite.playlistId, alreadyMember: false });

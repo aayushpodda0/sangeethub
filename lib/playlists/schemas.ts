@@ -23,6 +23,11 @@ export const reorderTracksSchema = z.object({
   orderedPlaylistTrackIds: z.array(z.string()).min(1, "At least one track id is required"),
 });
 
+export const updateCollaboratorSchema = z.object({
+  permission: z.enum(["CONTRIBUTOR", "MODERATOR"]).optional(),
+  canRemoveOthers: z.boolean().optional(),
+});
+
 export type CreatePlaylistInput = z.infer<typeof createPlaylistSchema>;
 export type UpdatePlaylistInput = z.infer<typeof updatePlaylistSchema>;
 export type AddTrackInput = z.infer<typeof addTrackSchema>;
