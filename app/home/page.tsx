@@ -73,61 +73,71 @@ export default async function DashboardPage() {
   }));
 
   const trendingTracks = trending.map(toDiscoveryTrack);
+  const firstName = (session.user.name ?? session.user.username ?? "there").split(" ")[0];
 
   return (
-    <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-6">
-      <header className="mb-8 flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">
-            Welcome back,{" "}
-            <Link href={`/profile/${session.user.username}`} className="hover:underline">
-              {session.user.name}
-            </Link>
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Discover music across moods, languages, and regional scenes.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button asChild variant="outline">
-            <Link href="/search">Search</Link>
-          </Button>
-          <SignOutButton />
+    <main className="mx-auto min-h-screen w-full max-w-7xl px-4 pb-6 sm:px-6">
+      {/* Hero */}
+      <header className="relative mb-10 overflow-hidden rounded-3xl border border-border">
+        <div
+          className="absolute inset-0 opacity-90"
+          style={{ backgroundImage: "var(--gradient-sunset)" }}
+          aria-hidden
+        />
+        <div className="absolute inset-0 bg-background/10" aria-hidden />
+        <div className="relative flex flex-wrap items-end justify-between gap-6 px-6 py-10 sm:px-10 sm:py-14">
+          <div>
+            <p className="text-sm font-medium text-accent-foreground/80">Good to see you</p>
+            <h1 className="font-display mt-1 text-4xl font-medium tracking-tight text-accent-foreground sm:text-5xl">
+              {firstName}
+            </h1>
+            <p className="mt-3 max-w-md text-sm text-accent-foreground/85">
+              Discover music across moods, languages, and regional scenes.
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button asChild variant="secondary">
+              <Link href="/search">Search</Link>
+            </Button>
+            <SignOutButton />
+          </div>
         </div>
       </header>
 
       {recommendationCards.length > 0 && (
-        <section className="mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {recommendationCards.map((card) => (
-            <Link
-              key={card.trackId}
-              href={`/tracks/${card.trackId}`}
-              className="rounded-xl border border-border bg-card p-4 transition hover:border-accent/50"
-            >
-              <p className="text-xs uppercase tracking-wide text-accent">{card.title}</p>
-              <p className="mt-2 truncate text-sm font-medium">{card.trackTitle}</p>
-              <p className="mt-1 text-xs text-muted-foreground">{card.detail}</p>
-            </Link>
-          ))}
+        <section className="mb-10">
+          <h2 className="font-display text-2xl font-medium">Made for you</h2>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {recommendationCards.map((card) => (
+              <Link
+                key={card.trackId}
+                href={`/tracks/${card.trackId}`}
+                className="group rounded-xl border-l-2 border-accent bg-card p-4 transition hover:bg-muted"
+              >
+                <p className="truncate text-sm font-medium group-hover:text-accent">{card.trackTitle}</p>
+                <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{card.detail}</p>
+              </Link>
+            ))}
+          </div>
         </section>
       )}
 
-      <div className="grid gap-8 lg:grid-cols-[2fr_1fr]">
-        <TrackList title="Trending regional music" tracks={trendingTracks} />
+      <div className="grid gap-10 lg:grid-cols-[2fr_1fr]">
+        <TrackList title="Trending regional music" tracks={trendingTracks} ranked />
 
-        <aside className="space-y-5">
-          <section className="rounded-xl border border-border bg-card p-4">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+        <aside className="space-y-8">
+          <section>
+            <h2 className="text-xs font-semibold tracking-wide text-muted-foreground">
               Recommended playlists
             </h2>
-            <ul className="mt-3 space-y-2">
+            <ul className="mt-3 space-y-3">
               {playlists.map((playlist) => (
                 <li key={playlist.id}>
-                  <Link href={`/playlists/${playlist.id}`} className="text-sm font-medium hover:underline">
+                  <Link href={`/playlists/${playlist.id}`} className="text-sm font-medium hover:text-accent">
                     {playlist.name}
                   </Link>
                   <p className="text-xs text-muted-foreground">
-                    {playlist.isPublic ? "Public" : "Private"} • by{" "}
+                    {playlist.isPublic ? "Public" : "Private"}, by{" "}
                     {playlist.owner.name ?? playlist.owner.username}
                   </p>
                 </li>
@@ -135,14 +145,14 @@ export default async function DashboardPage() {
             </ul>
           </section>
 
-          <section className="rounded-xl border border-border bg-card p-4">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+          <section>
+            <h2 className="text-xs font-semibold tracking-wide text-muted-foreground">
               Featured independent artists
             </h2>
-            <ul className="mt-3 space-y-2">
+            <ul className="mt-3 space-y-3">
               {artists.map((artist) => (
                 <li key={artist.id}>
-                  <Link href={`/artists/${artist.id}`} className="text-sm font-medium hover:underline">
+                  <Link href={`/artists/${artist.id}`} className="text-sm font-medium hover:text-accent">
                     {artist.name}
                   </Link>
                   <p className="text-xs text-muted-foreground">
@@ -153,14 +163,12 @@ export default async function DashboardPage() {
             </ul>
           </section>
 
-          <section className="rounded-xl border border-border bg-card p-4">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-              New releases
-            </h2>
-            <ul className="mt-3 space-y-2">
+          <section>
+            <h2 className="text-xs font-semibold tracking-wide text-muted-foreground">New releases</h2>
+            <ul className="mt-3 space-y-3">
               {albums.map((album) => (
                 <li key={album.id}>
-                  <Link href={`/albums/${album.id}`} className="text-sm font-medium hover:underline">
+                  <Link href={`/albums/${album.id}`} className="text-sm font-medium hover:text-accent">
                     {album.title}
                   </Link>
                   <p className="text-xs text-muted-foreground">{album.primaryArtist.name}</p>
@@ -173,4 +181,3 @@ export default async function DashboardPage() {
     </main>
   );
 }
-
