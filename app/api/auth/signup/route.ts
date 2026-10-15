@@ -2,7 +2,12 @@ import { hash } from "bcryptjs";
 
 import { apiError, apiSuccess } from "@/lib/api/response";
 import { signupSchema } from "@/lib/auth/schemas";
+import { prismaErrorCode } from "@/lib/api/prisma-errors";
 import { prisma } from "@/lib/db/prisma";
+import { createRateLimiter, getClientIp } from "@/lib/security/rate-limit";
+
+// 10 signups per IP per 15 minutes: generous for humans, stops scripted account spam.
+const signupLimiter = createRateLimiter({ limit: 10, windowMs: 15 * 60 * 1000 });
 
 async function ensureUniqueUsername(baseUsername: string) {
   const normalized = baseUsername.toLowerCase();
@@ -23,6 +28,13 @@ async function ensureUniqueUsername(baseUsername: string) {
 }
 
 export async function POST(request: Request) {
+  const rate = signupLimiter.check(getClientIp(request.headers));
+  if (!rate.allowed) {
+    const response = apiError(429, "RATE_LIMITED", "Too many signup attempts. Please try again later.");
+    response.headers.set("Retry-After", String(rate.retryAfterSeconds));
+    return response;
+  }
+
   let json: unknown;
   try {
     json = await request.json();
@@ -62,6 +74,10 @@ export async function POST(request: Request) {
 
     return apiSuccess(user, 201);
   } catch (error) {
+    // Two simultaneous signups can both pass the pre-checks; the DB unique constraint is the real guard.
+    if (prismaErrorCode(error) === "P2002") {
+      return apiError(409, "EMAIL_EXISTS", "An account already exists with this email.");
+    }
     console.error("[signup] failed:", error);
     return apiError(
       500,

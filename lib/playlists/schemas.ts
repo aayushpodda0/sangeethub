@@ -9,7 +9,12 @@ export const createPlaylistSchema = z.object({
 export const updatePlaylistSchema = z.object({
   name: z.string().min(1, "Name is required").max(80, "Name is too long").optional(),
   description: z.string().max(500, "Description is too long").nullable().optional(),
-  coverUrl: z.string().url("Must be a valid URL").nullable().optional(),
+  coverUrl: z
+    .string()
+    .url("Must be a valid URL")
+    .refine((v) => /^https?:\/\//i.test(v), "Cover URL must start with http:// or https://")
+    .nullable()
+    .optional(),
   isPublic: z.boolean().optional(),
   isCollaborative: z.boolean().optional(),
   folderId: z.string().nullable().optional(),

@@ -3,11 +3,27 @@ import { createServer } from "node:http";
 import next from "next";
 import { Server } from "socket.io";
 
+import { findProductionEnvProblems } from "./lib/config/env";
 import { registerPartyHandlers } from "./lib/party/socket-handlers";
 
 const dev = process.env.NODE_ENV !== "production";
-const hostname = process.env.HOSTNAME || "localhost";
+// Not `HOSTNAME`: Docker and most hosts auto-set that to a random container id.
+const hostname = process.env.APP_HOSTNAME || "localhost";
 const port = Number(process.env.PORT) || 3000;
+
+if (!dev) {
+  const problems = findProductionEnvProblems(process.env);
+  if (problems.length > 0) {
+    console.error("Refusing to start in production:\n" + problems.map((p) => `  - ${p}`).join("\n"));
+    process.exit(1);
+  }
+}
+
+// Safety net: a bug in one socket handler must not take every party room down with it.
+// Log loudly (so it is noticed and fixed) but keep serving.
+process.on("unhandledRejection", (reason) => {
+  console.error("[server] unhandled promise rejection:", reason);
+});
 
 const app = next({ dev, hostname, port });
 const handle = app.getRequestHandler();

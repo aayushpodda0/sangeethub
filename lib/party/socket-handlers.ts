@@ -2,8 +2,17 @@ import { getToken } from "next-auth/jwt";
 import { VoteType } from "@prisma/client";
 import type { Server, Socket } from "socket.io";
 
+import { prismaErrorCode } from "@/lib/api/prisma-errors";
 import { prisma } from "@/lib/db/prisma";
 import { computePlaybackState } from "@/lib/party/playback-state";
+import {
+  MAX_PARTY_QUEUE_SIZE,
+  positionSchema,
+  queueAddSchema,
+  queueRemoveSchema,
+  queueVoteSchema,
+  roomCodeSchema,
+} from "@/lib/party/validation";
 import type {
   ClientToServerEvents,
   PartyParticipantInfo,
@@ -107,7 +116,14 @@ export function registerPartyHandlers(io: Server<ClientToServerEvents, ServerToC
   io.on("connection", (rawSocket) => {
     const socket = rawSocket as AppSocket;
 
-    socket.on("room:join", async (roomCode) => {
+    socket.on("room:join", async (rawRoomCode: unknown) => {
+      const parsedCode = roomCodeSchema.safeParse(rawRoomCode);
+      if (!parsedCode.success) {
+        socket.emit("room:error", { message: "That room code isn't valid." });
+        return;
+      }
+      const roomCode = parsedCode.data;
+
       try {
         const room = await prisma.partyRoom.findUnique({ where: { roomCode } });
         if (!room || !room.isActive) {
@@ -164,9 +180,15 @@ export function registerPartyHandlers(io: Server<ClientToServerEvents, ServerToC
       await handleLeave(io, socket);
     });
 
-    socket.on("queue:add", async ({ trackId }) => {
+    socket.on("queue:add", async (payload: unknown) => {
       const roomCode = socket.data.roomCode;
       if (!roomCode) return;
+      const parsed = queueAddSchema.safeParse(payload);
+      if (!parsed.success) {
+        socket.emit("room:error", { message: "Invalid request." });
+        return;
+      }
+      const { trackId } = parsed.data;
 
       try {
         const room = await prisma.partyRoom.findUnique({ where: { roomCode } });
@@ -179,9 +201,32 @@ export function registerPartyHandlers(io: Server<ClientToServerEvents, ServerToC
         }
 
         const count = await prisma.partyQueueItem.count({ where: { roomId: room.id } });
-        await prisma.partyQueueItem.create({
-          data: { roomId: room.id, trackId, addedById: socket.data.userId, position: count },
-        });
+        if (count >= MAX_PARTY_QUEUE_SIZE) {
+          socket.emit("room:error", { message: "The queue is full. Wait for some tracks to play." });
+          return;
+        }
+        // Next position = highest existing + 1. (Using the row count collides with the
+        // @@unique([roomId, position]) constraint as soon as any earlier item was removed/skipped.)
+        // Two simultaneous adds can still race for the same slot, so retry a couple of times.
+        let added = false;
+        for (let attempt = 0; attempt < 3 && !added; attempt += 1) {
+          const { _max } = await prisma.partyQueueItem.aggregate({
+            where: { roomId: room.id },
+            _max: { position: true },
+          });
+          try {
+            await prisma.partyQueueItem.create({
+              data: { roomId: room.id, trackId, addedById: socket.data.userId, position: (_max.position ?? -1) + 1 },
+            });
+            added = true;
+          } catch (error) {
+            if (prismaErrorCode(error) !== "P2002") throw error;
+          }
+        }
+        if (!added) {
+          socket.emit("room:error", { message: "The queue is busy. Please try adding that again." });
+          return;
+        }
 
         await broadcastQueue(io, room.id, roomCode);
       } catch (error) {
@@ -190,9 +235,15 @@ export function registerPartyHandlers(io: Server<ClientToServerEvents, ServerToC
       }
     });
 
-    socket.on("queue:remove", async ({ queueItemId }) => {
+    socket.on("queue:remove", async (payload: unknown) => {
       const roomCode = socket.data.roomCode;
       if (!roomCode) return;
+      const parsed = queueRemoveSchema.safeParse(payload);
+      if (!parsed.success) {
+        socket.emit("room:error", { message: "Invalid request." });
+        return;
+      }
+      const { queueItemId } = parsed.data;
 
       try {
         const room = await prisma.partyRoom.findUnique({ where: { roomCode } });
@@ -218,9 +269,15 @@ export function registerPartyHandlers(io: Server<ClientToServerEvents, ServerToC
       }
     });
 
-    socket.on("queue:vote", async ({ queueItemId, voteType }) => {
+    socket.on("queue:vote", async (payload: unknown) => {
       const roomCode = socket.data.roomCode;
       if (!roomCode) return;
+      const parsed = queueVoteSchema.safeParse(payload);
+      if (!parsed.success) {
+        socket.emit("room:error", { message: "Invalid request." });
+        return;
+      }
+      const { queueItemId, voteType } = parsed.data;
 
       try {
         const room = await prisma.partyRoom.findUnique({ where: { roomCode } });
@@ -267,10 +324,19 @@ export function registerPartyHandlers(io: Server<ClientToServerEvents, ServerToC
     socket.on("playback:play", () => handleHostPlayback(io, socket, "play"));
     socket.on("playback:pause", () => handleHostPlayback(io, socket, "pause"));
     socket.on("playback:skip", () => handleHostPlayback(io, socket, "skip"));
-    socket.on("playback:seek", (payload) => handleHostPlayback(io, socket, "seek", payload.positionSeconds));
-    socket.on("playback:heartbeat", (payload) =>
-      handleHostPlayback(io, socket, "heartbeat", payload.positionSeconds),
-    );
+    socket.on("playback:seek", (payload: unknown) => {
+      const parsed = positionSchema.safeParse(payload);
+      if (!parsed.success) {
+        socket.emit("room:error", { message: "Invalid seek position." });
+        return;
+      }
+      void handleHostPlayback(io, socket, "seek", parsed.data.positionSeconds);
+    });
+    socket.on("playback:heartbeat", (payload: unknown) => {
+      const parsed = positionSchema.safeParse(payload);
+      if (!parsed.success) return; // heartbeats are fire-and-forget; drop bad ones silently
+      void handleHostPlayback(io, socket, "heartbeat", parsed.data.positionSeconds);
+    });
   });
 
   async function handleHostPlayback(

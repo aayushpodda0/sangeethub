@@ -43,7 +43,14 @@ const demoTracks = [
 ];
 
 async function main() {
-  const adminPasswordHash = await hash("Admin@12345", 12);
+  const DEV_ADMIN_PASSWORD = "Admin@12345";
+  const adminPassword = process.env.SEED_ADMIN_PASSWORD ?? DEV_ADMIN_PASSWORD;
+  if (process.env.NODE_ENV === "production" && adminPassword === DEV_ADMIN_PASSWORD) {
+    throw new Error(
+      "Refusing to seed a production database with the well-known demo admin password. Set SEED_ADMIN_PASSWORD.",
+    );
+  }
+  const adminPasswordHash = await hash(adminPassword, 12);
 
   const [adminUser, demoUser] = await Promise.all([
     prisma.user.upsert({
@@ -229,7 +236,11 @@ async function main() {
   });
 
   console.log("Seed complete");
-  console.log(`Admin login: ${adminUser.email} / Admin@12345`);
+  console.log(
+    adminPassword === DEV_ADMIN_PASSWORD
+      ? `Admin login: ${adminUser.email} / ${DEV_ADMIN_PASSWORD} (dev only)`
+      : `Admin login: ${adminUser.email} (password from SEED_ADMIN_PASSWORD)`,
+  );
   console.log(`Demo login: ${demoUser.email} / Listener@12345`);
 }
 

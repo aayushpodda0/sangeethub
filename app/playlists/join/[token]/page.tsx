@@ -69,7 +69,7 @@ export default function JoinPlaylistPage() {
       {preview && preview.alreadyMember && (
         <div>
           <p className="mb-4 text-sm text-muted-foreground">
-            You're already a collaborator on &ldquo;{preview.playlistName}&rdquo;.
+            You&apos;re already a collaborator on &ldquo;{preview.playlistName}&rdquo;.
           </p>
           <Button onClick={() => router.replace(`/playlists/${preview.playlistId}`)}>Open playlist</Button>
         </div>

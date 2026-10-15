@@ -2,8 +2,11 @@ import { notFound } from "next/navigation";
 
 import { PlayTrackButton } from "@/components/player/play-track-button";
 import { ShareButton } from "@/components/shared/share-button";
-import { prisma } from "@/lib/db/prisma";
-import { toDiscoveryTrack } from "@/lib/music/serializers";
+import { DemoMusicProvider } from "@/lib/music/demo-provider";
+
+// Tracks are resolved through the MusicProvider so a licensed streaming API can replace the demo
+// catalog without touching this page.
+const provider = new DemoMusicProvider();
 
 type TrackPageProps = {
   params: Promise<{ id: string }>;
@@ -11,20 +14,11 @@ type TrackPageProps = {
 
 export default async function TrackPage({ params }: TrackPageProps) {
   const { id } = await params;
-  const track = await prisma.track.findUnique({
-    where: { id },
-    include: {
-      album: true,
-      artists: { include: { artist: true } },
-      genres: { include: { genre: true } },
-    },
-  });
+  const mapped = await provider.getTrackById(id);
 
-  if (!track) {
+  if (!mapped) {
     notFound();
   }
-
-  const mapped = toDiscoveryTrack(track);
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-4xl px-4 py-6 sm:px-6">

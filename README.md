@@ -104,9 +104,14 @@ See `.env.example`. At minimum:
 |---|---|
 | `DATABASE_URL` | Postgres connection string |
 | `NEXTAUTH_URL` | Must match the URL you're actually running on |
-| `NEXTAUTH_SECRET` | Random secret for session signing — generate your own, don't reuse the placeholder |
+| `NEXTAUTH_SECRET` | Random secret for session signing (32+ chars). The production server refuses to start with a placeholder/short one |
+| `APP_HOSTNAME` | Optional, default `localhost` |
+| `SEED_ADMIN_PASSWORD` | Required only when seeding with `NODE_ENV=production` |
 
-## Demo accounts (after seeding)
+## Demo accounts (after seeding — development only)
+
+These have well-known passwords. Never seed demo data into a real production database
+(seeding with `NODE_ENV=production` refuses unless `SEED_ADMIN_PASSWORD` is set).
 
 - Admin: `admin@sangeethub.local` / `Admin@12345`
 - Listener: `listener@sangeethub.local` / `Listener@12345`
@@ -123,20 +128,26 @@ See `.env.example`. At minimum:
 | `npm run test:e2e` | E2E tests (Playwright) — needs a running dev server + seeded DB |
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm run lint` | ESLint |
+| `npm run db:deploy` | `prisma migrate deploy` (production migrations) |
 | `npm run db:studio` | Prisma Studio |
 
 ## Testing
 
-- **Unit** (`tests/unit/`): pure logic only — player queue/shuffle/repeat, playlist
-  authorization rules, recommendation scoring/explanations, party playback-position
-  math, Zod schema validation. These deliberately avoid touching Prisma so they run
-  fast with no DB required.
-- **E2E** (`tests/e2e/`): sign-in, search-and-play, playlist create + add-track, each
-  against the seeded demo account. Requires `docker compose up -d`, a migrated +
-  seeded DB, and `npm run dev` (or let Playwright's `webServer` config start it).
+All of `npm run test` runs without a database:
 
-Run `npm run test` before any commit that touches `lib/`; run `npm run test:e2e`
-before anything that touches a core user flow (auth, player, playlists, party).
+- **Unit** (`tests/unit/`): player queue/shuffle/repeat, playlist authorization rules, recommendation
+  scoring, playback-position math, Zod schemas, rate limiter, production env validation, socket-payload schemas.
+- **API** (`tests/api/`): the real route handlers *and* real authorization code run against a mocked
+  Prisma - covering 401 on every mutating endpoint, owner/moderator/contributor/stranger permissions,
+  invite token handling (invalid / expired / duplicate / owner), input validation, and rate limiting.
+- **Realtime integration** (`tests/integration/`): the real Socket.IO server with two real clients against an
+  in-memory fake DB - host-only playback, vote ordering, cross-room vote blocking, malformed-payload
+  survival, queue cap, position-collision regression.
+- **E2E** (`tests/e2e/`, Playwright): sign-in, search-and-play, playlist create + add-track. Needs
+  `docker compose up -d`, a migrated + seeded DB and a dev server.
+
+Mocked-Prisma tests prove handler/authorization logic, not SQL behaviour or DB constraints.
+See `PROJECT_STATUS.md` for exactly what has and hasn't been verified.
 
 ## Recommendation engine
 
@@ -158,19 +169,14 @@ position as `playbackPosition + elapsed-time-since-startedAt` (see
 `lib/party/playback-state.ts`), with periodic host heartbeats to correct drift. Queue
 order is driven by vote score, not insertion order.
 
-## Known gaps / future improvements
+## Status, deployment, known gaps
 
-- Track/album/artist detail pages bypass the `MusicProvider` abstraction (query Prisma
-  directly) — only search goes through it today. Worth unifying before swapping in a
-  real music API.
-- No test coverage yet for the API route layer itself (auth, validation, error
-  shapes) — current tests cover business logic, not the HTTP boundary.
-- UI is functional but not visually polished — low hierarchy, no real imagery
-  (gradient placeholders throughout), dense text blocks. A dedicated design pass is
-  still pending.
-- Production deployment of the custom server (`server.ts`) hasn't been set up on any
-  specific host — `npm start` works locally but whatever platform this deploys to
-  needs to support a long-running Node process (not pure serverless) for Socket.IO.
+- **`PROJECT_STATUS.md`** - single source of truth: what's done and verified, known bugs, technical debt,
+  deployment blockers.
+- **`docs/DEPLOYMENT.md`** - hosting requirements (long-running Node + WebSocket + Postgres; not serverless),
+  env vars, migrations, reverse-proxy config, health check.
+- Notable gaps today: no committed Prisma migrations yet (blocks `migrate deploy`), no mobile bottom nav,
+  no CSP header, album/artist pages query Prisma directly instead of via `MusicProvider`.
 
 ## Legal note
 

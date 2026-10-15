@@ -1,5 +1,6 @@
 import { apiError, apiSuccess } from "@/lib/api/response";
 import { getAuthSession } from "@/lib/auth/session";
+import { prismaErrorCode } from "@/lib/api/prisma-errors";
 import { prisma } from "@/lib/db/prisma";
 
 type RouteParams = { params: Promise<{ albumId: string }> };
@@ -18,6 +19,9 @@ export async function PUT(_request: Request, { params }: RouteParams) {
     });
     return apiSuccess({ saved: true });
   } catch (error) {
+    if (prismaErrorCode(error) === "P2003") {
+      return apiError(404, "NOT_FOUND", "That album doesn't exist.");
+    }
     console.error("[favorites:album:save] failed:", error);
     return apiError(500, "SAVE_FAILED", "Couldn't save this album. Please try again.");
   }
