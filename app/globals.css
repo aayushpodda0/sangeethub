@@ -1,20 +1,22 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fdf6ee;
-  --foreground: #231a14;
-  --muted: #f3e6d6;
-  --muted-foreground: #7a6150;
-  --card: #fff9f1;
-  --border: #e8d7c0;
-  --input: #fffaf3;
-  --accent: #e2501f;
-  --accent-foreground: #fff8f3;
-  --secondary: #f2b35a;
-  --secondary-foreground: #2e1608;
-  --destructive: #b3281a;
-  --color-accent-soft: rgba(226, 80, 31, 0.18);
-  --gradient-sunset: linear-gradient(135deg, #f2542d 0%, #f6a623 100%);
+  --background: #0f0d0c;
+  --foreground: #f5eee6;
+  --muted: #211a17;
+  --muted-foreground: #ad9a8b;
+  --card: #171210;
+  --border: #342722;
+  --input: #1d1613;
+  --accent: #e9783f;
+  --accent-foreground: #fff7ef;
+  --secondary: #d2a15f;
+  --secondary-foreground: #21140d;
+  --destructive: #f06a58;
+  --color-accent-soft: rgba(233, 120, 63, 0.16);
+  --gradient-sunset: linear-gradient(135deg, #9e4025 0%, #d28a43 100%);
+  --surface-elevated: #1d1714;
+  --shadow-surface: 0 18px 50px -28px rgba(0, 0, 0, 0.9);
 }
 
 @theme inline {
@@ -35,26 +37,29 @@
 }
 
 .dark {
-  --background: #1a1210;
+  --background: #0b0908;
   --foreground: #f5ebdd;
-  --muted: #241a16;
-  --muted-foreground: #a68d7a;
-  --card: #221712;
-  --border: #382820;
-  --input: #2a1d17;
-  --accent: #f2542d;
+  --muted: #1b1512;
+  --muted-foreground: #ab9685;
+  --card: #14100e;
+  --border: #30231e;
+  --input: #1a1411;
+  --accent: #f08043;
   --accent-foreground: #fff4ec;
-  --secondary: #5c2a3a;
-  --secondary-foreground: #f6d9bf;
-  --destructive: #ef4a38;
-  --color-accent-soft: rgba(242, 84, 45, 0.22);
-  --gradient-sunset: linear-gradient(135deg, #f2542d 0%, #f6a623 100%);
+  --secondary: #b9824d;
+  --secondary-foreground: #1d1109;
+  --destructive: #ef5e4b;
+  --color-accent-soft: rgba(240, 128, 67, 0.2);
+  --gradient-sunset: linear-gradient(135deg, #a94727 0%, #d79548 100%);
+  --surface-elevated: #1c1512;
+  --shadow-surface: 0 18px 50px -28px rgba(0, 0, 0, 0.95);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-manrope), Arial, Helvetica, sans-serif;
+  background-image: radial-gradient(circle at 82% -10%, rgba(176, 77, 37, 0.12), transparent 28rem);
 }
 
 * {
@@ -63,4 +68,19 @@ body {
 
 .font-display {
   font-family: var(--font-fraunces), Georgia, serif;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
 }

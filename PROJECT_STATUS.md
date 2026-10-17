@@ -21,18 +21,20 @@ Don't move something to Completed without evidence.
 | Similar tracks (explainable weighted scoring) | Automated |
 | Insights, profiles, sharing | Manual |
 | Security hardening (see below), health endpoint, prod env validation | Automated where marked |
+| Midnight Ember UI pass: shared tokens, home discovery, artwork-led lists, player/queue polish, responsive surfaces | Unverified (lint clean; affected component tests pass; browser review pending) |
 
 ## Current phase
 Finalization: audit → harden → test → document. Audit baseline: commit `f1819db`, 2026-10-12.
 
 ## In progress
-- UI polish: redesign pass 1 (tokens, fonts, home, shared track list) + track/album/artist pages. Search, library, discover, insights, playlists, party and profile pages still use the old look.
+- UI polish: Midnight Ember tokens, fonts, home, shared track lists, search/discover/library/playlist rows, artwork surfaces, player and queue sizing are implemented. Browser review remains pending for insights, party and profile layouts.
 
 ## Remaining
 - Mobile bottom navigation + expandable mobile player (must coexist with the fixed player bar; needs browser verification).
-- Artwork now renders on track/album/artist pages and track lists. Still gradient placeholders in: search rows, the player bar thumbnail, party room, playlist covers, profile.
+- Artwork now renders on home recommendations, track/album/artist pages, search/discover/library/playlist rows, shared track lists, and the player thumbnail. Gradient avatars remain in the profile and party room where the current data shape does not provide artwork.
 - Run and fix the Playwright E2E suite (specs exist; never executed by the author of this audit).
 - Loading/empty/error-state pass verified in a browser on every page (implemented in code, not visually verified).
+- Browser responsive/accessibility review is still pending for desktop, tablet, and mobile. Reduced-motion CSS and visible focus styles are implemented.
 
 ## Known Bugs
 - None known. (A party-queue add failure after removals/skips and a server crash on malformed socket payloads were found and fixed in this audit — see Last Audit.)
@@ -68,3 +70,10 @@ nonce-based Content-Security-Policy, shared rate-limit/socket store for multi-in
   - *Security:* signup/login brute-force protection, `javascript:` playlist cover URLs rejected, discover filters validated (400 not 500), FK errors → 404, signup race → 409, security headers, production env validation, seed refuses known admin password in production, queue size cap.
   - *Lint:* 1 error (unescaped apostrophe).
 - **New:** `GET /api/health`, `docs/DEPLOYMENT.md`, API-layer + realtime test suites.
+
+## UI refinement validation
+- **Lint:** Passed after the Midnight Ember pass.
+- **Affected component tests:** Passed (15/15 in `tests/components/library-and-queue.test.tsx`).
+- **Typecheck/build:** Blocked by pre-existing Prisma `PlaylistActivityType` enum mismatches in collaborator routes (`COLLABORATOR_PERMISSION_CHANGED`, `COLLABORATOR_REMOVED`, `COLLABORATOR_JOINED`).
+- **Full unit suite:** Not clean in this environment: 81 passed, one signup rate-limit test timed out, and Vitest reported worker-start timeouts.
+- **Browser/E2E/responsive review:** Not run in this pass.

@@ -7,6 +7,7 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { LikeTrackButton } from "@/components/library/like-track-button";
+import { Artwork } from "@/components/music/artwork";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { usePlayerStore } from "@/lib/player/store";
@@ -145,8 +146,10 @@ export function LibraryPageContent() {
                     type="button"
                     aria-label={`Play ${track.title}`}
                     onClick={() => playTrack(track, data.likedTracks.map((t) => t.track))}
-                    className="size-10 shrink-0 rounded-lg bg-linear-to-br from-accent to-secondary"
-                  />
+                    className="size-10 shrink-0 overflow-hidden rounded-lg"
+                  >
+                    <Artwork src={track.artworkUrl} seed={track.id} alt="" className="size-full" />
+                  </button>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium">{track.title}</p>
                     <p className="truncate text-xs text-muted-foreground">{track.artistNames.join(", ")}</p>
@@ -173,7 +176,7 @@ export function LibraryPageContent() {
                   href={`/albums/${album.id}`}
                   className="flex items-center gap-3 rounded-2xl border border-border bg-card p-3 hover:border-accent/50"
                 >
-                  <div className="size-12 shrink-0 rounded-lg bg-linear-to-br from-accent to-secondary" />
+                  <Artwork src={album.artworkUrl} seed={album.id} alt={`${album.title} cover art`} className="size-12 rounded-lg" />
                   <div className="min-w-0">
                     <p className="truncate text-sm font-medium">{album.title}</p>
                     <p className="truncate text-xs text-muted-foreground">{album.artistName}</p>
@@ -195,7 +198,7 @@ export function LibraryPageContent() {
                   href={`/artists/${artist.id}`}
                   className="flex items-center gap-3 rounded-2xl border border-border bg-card p-3 hover:border-accent/50"
                 >
-                  <div className="size-12 shrink-0 rounded-full bg-linear-to-br from-accent to-secondary" />
+                  <Artwork src={artist.imageUrl} seed={artist.id} alt={`${artist.name} profile image`} className="size-12 rounded-full" round />
                   <p className="truncate text-sm font-medium">{artist.name}</p>
                 </Link>
               </li>
@@ -230,8 +233,10 @@ export function LibraryPageContent() {
                     type="button"
                     aria-label={`Play ${track.title}`}
                     onClick={() => playTrack(track, data.recentlyPlayed.map((t) => t.track))}
-                    className="size-10 shrink-0 rounded-lg bg-linear-to-br from-accent to-secondary"
-                  />
+                    className="size-10 shrink-0 overflow-hidden rounded-lg"
+                  >
+                    <Artwork src={track.artworkUrl} seed={track.id} alt="" className="size-full" />
+                  </button>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium">{track.title}</p>
                     <p className="truncate text-xs text-muted-foreground">{track.artistNames.join(", ")}</p>

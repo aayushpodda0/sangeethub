@@ -4,6 +4,7 @@ import { GripVertical, Pause, Play, X } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
+import { Artwork } from "@/components/music/artwork";
 import { usePlayerStore } from "@/lib/player/store";
 import { cn, formatDuration } from "@/lib/utils";
 import type { DiscoveryTrack } from "@/types/music";
@@ -49,7 +50,10 @@ export function PlaylistTrackRow({
       onDragStart={() => canReorder && onDragStart(index)}
       onDragOver={canReorder ? onDragOver : undefined}
       onDrop={() => canReorder && onDrop(index)}
-      className={cn("flex items-center gap-3 rounded-xl px-2 py-2 hover:bg-muted", isCurrent && "bg-accent/10")}
+      className={cn(
+        "group flex items-center gap-3 rounded-2xl border border-transparent px-2 py-2.5 hover:border-border hover:bg-muted/70",
+        isCurrent && "bg-accent/10",
+      )}
     >
       {canReorder ? (
         <GripVertical className="size-4 shrink-0 cursor-grab text-muted-foreground" aria-hidden />
@@ -67,7 +71,7 @@ export function PlaylistTrackRow({
         {isCurrent && isPlaying ? <Pause className="size-4" /> : <Play className="size-4" />}
       </Button>
 
-      <div className="size-10 shrink-0 rounded-lg bg-gradient-to-br from-accent to-secondary" aria-hidden />
+      <Artwork src={entry.track.artworkUrl} seed={entry.track.id} alt={`${entry.track.title} cover art`} className="size-10 rounded-lg" />
 
       <div className="min-w-0 flex-1">
         <p className={cn("truncate text-sm font-medium", isCurrent && "text-accent")}>{entry.track.title}</p>

@@ -33,7 +33,7 @@ export function QueuePanel() {
 
       {open && (
         <div
-          className="absolute bottom-full right-0 mb-3 max-h-96 w-80 overflow-y-auto rounded-2xl border border-border bg-card p-3 shadow-xl"
+          className="absolute bottom-full right-0 mb-3 max-h-[min(24rem,calc(100vh-7rem))] w-[min(20rem,calc(100vw-2rem))] overflow-y-auto rounded-2xl border border-border bg-card p-3 shadow-[var(--shadow-surface)]"
           role="region"
           aria-label="Playback queue"
         >

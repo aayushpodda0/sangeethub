@@ -15,6 +15,7 @@ import {
 import { useEffect } from "react";
 
 import { QueuePanel } from "@/components/player/queue-panel";
+import { Artwork } from "@/components/music/artwork";
 import { Button } from "@/components/ui/button";
 import { useAudioEngine } from "@/lib/player/use-audio-engine";
 import { usePlayerStore } from "@/lib/player/store";
@@ -73,7 +74,7 @@ export function PlayerBar() {
 
   return (
     <div
-      className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80"
+      className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-card/95 shadow-[0_-16px_40px_-30px_rgba(0,0,0,0.95)] backdrop-blur supports-[backdrop-filter]:bg-card/85"
       role="region"
       aria-label="Now playing"
     >
@@ -100,13 +101,10 @@ export function PlayerBar() {
           <span className="w-10 tabular-nums">{formatTime(duration)}</span>
         </div>
 
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center justify-between gap-3 sm:gap-4">
           {/* Track info */}
           <div className="flex min-w-0 flex-1 items-center gap-3">
-            <div
-              className="size-11 shrink-0 rounded-lg bg-gradient-to-br from-accent to-secondary"
-              aria-hidden
-            />
+            <Artwork src={track.artworkUrl} seed={track.id} alt="" className="size-11 rounded-lg" />
             <div className="min-w-0">
               <p className="truncate text-sm font-medium">{track.title}</p>
               <p className="truncate text-xs text-muted-foreground">{track.artistNames.join(", ")}</p>

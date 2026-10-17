@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 
 import { PlayTrackButton } from "@/components/player/play-track-button";
+import { Artwork } from "@/components/music/artwork";
 import { cn, formatDuration } from "@/lib/utils";
 import type { DiscoveryTrack } from "@/types/music";
 
@@ -138,7 +139,12 @@ export function DiscoverPageContent({ independentArtists, languageCounts }: Prop
             <ul className="space-y-1">
               {tracks.map((track) => (
                 <li key={track.id} className="flex items-center gap-3 rounded-xl px-2 py-2 hover:bg-muted">
-                  <div className="size-10 shrink-0 rounded-lg bg-linear-to-br from-accent to-secondary" />
+                  <Artwork
+                    src={track.artworkUrl}
+                    seed={track.id}
+                    alt={`${track.title} cover art`}
+                    className="size-10 rounded-lg"
+                  />
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium">{track.title}</p>
                     <p className="truncate text-xs text-muted-foreground">

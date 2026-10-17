@@ -13,7 +13,7 @@ export function Providers({ children }: PropsWithChildren) {
 
   return (
     <SessionProvider>
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
         <QueryClientProvider client={queryClient}>
           <PlayerShell>{children}</PlayerShell>
           <Toaster richColors />
@@ -22,4 +22,3 @@ export function Providers({ children }: PropsWithChildren) {
     </SessionProvider>
   );
 }
-
