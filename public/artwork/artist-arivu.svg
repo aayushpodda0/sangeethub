@@ -1,12 +1,7 @@
-<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="512" height="512" rx="44" fill="url(#paint0_linear)"/>
-  <circle cx="256" cy="186" r="82" fill="#FFE9D8"/>
-  <rect x="130" y="294" width="252" height="138" rx="69" fill="#FFE9D8"/>
-  <defs>
-    <linearGradient id="paint0_linear" x1="46" y1="50" x2="458" y2="462" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#FFAA7A"/>
-      <stop offset="1" stop-color="#5C2818"/>
-    </linearGradient>
-  </defs>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" role="img" aria-label="Arivu Axis">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5C2A5A"/><stop offset="1" stop-color="#C2457A"/></linearGradient></defs>
+<rect width="400" height="400" fill="url(#g)"/>
+<circle cx="320" cy="90" r="46" fill="#F6A623" opacity="0.85"/>
+<path d="M0 330 C 100 290, 220 360, 400 300 L400 400 L0 400Z" fill="#1a1210" opacity="0.25"/>
+<text x="200" y="232" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="140" font-weight="600" fill="#fff8f0" fill-opacity="0.95">AA</text>
 </svg>
-

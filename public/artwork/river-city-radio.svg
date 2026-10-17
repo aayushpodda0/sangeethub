@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" role="img" aria-label="River City Radio cover art">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2D6A4F"/><stop offset="1" stop-color="#95D5B2"/></linearGradient></defs>
+<rect width="600" height="600" fill="url(#g)"/>
+<circle cx="206.6" cy="260.1" r="112.4" fill="#F6A623" opacity="0.9"/>
+<circle cx="206.6" cy="260.1" r="162.9" fill="none" stroke="#F6A623" stroke-opacity="0.35" stroke-width="3"/>
+<path d="M0 380.0 C 150 323.7, 300 436.3, 450 351.9 S 600 398.8 600 380.0 L600 600 L0 600Z" fill="#1a1210" opacity="0.14"/>
+<path d="M0 450.0 C 150 403.1, 300 496.9, 450 426.6 S 600 465.6 600 450.0 L600 600 L0 600Z" fill="#1a1210" opacity="0.22"/>
+<path d="M0 520.0 C 150 479.9, 300 560.1, 450 499.9 S 600 533.4 600 520.0 L600 600 L0 600Z" fill="#1a1210" opacity="0.34"/>
+</svg>

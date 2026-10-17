@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" role="img" aria-label="Marina Sketches cover art">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5C2A5A"/><stop offset="1" stop-color="#C2457A"/></linearGradient></defs>
+<rect width="600" height="600" fill="url(#g)"/>
+<circle cx="331.5" cy="218.9" r="87.3" fill="#F6A623" opacity="0.9"/>
+<circle cx="331.5" cy="218.9" r="126.6" fill="none" stroke="#F6A623" stroke-opacity="0.35" stroke-width="3"/>
+<path d="M0 380.0 C 150 323.1, 300 436.9, 450 351.5 S 600 399.0 600 380.0 L600 600 L0 600Z" fill="#1a1210" opacity="0.14"/>
+<path d="M0 450.0 C 150 399.8, 300 500.2, 450 424.9 S 600 466.7 600 450.0 L600 600 L0 600Z" fill="#1a1210" opacity="0.22"/>
+<path d="M0 520.0 C 150 491.5, 300 548.5, 450 505.8 S 600 529.5 600 520.0 L600 600 L0 600Z" fill="#1a1210" opacity="0.34"/>
+</svg>

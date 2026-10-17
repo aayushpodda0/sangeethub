@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" role="img" aria-label="Hyderabad Hush cover art">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5C2A5A"/><stop offset="1" stop-color="#C2457A"/></linearGradient></defs>
+<rect width="600" height="600" fill="url(#g)"/>
+<circle cx="413.4" cy="195.0" r="138.5" fill="#F6A623" opacity="0.9"/>
+<circle cx="413.4" cy="195.0" r="200.9" fill="none" stroke="#F6A623" stroke-opacity="0.35" stroke-width="3"/>
+<path d="M0 380.0 C 150 319.2, 300 440.8, 450 349.6 S 600 400.3 600 380.0 L600 600 L0 600Z" fill="#1a1210" opacity="0.14"/>
+<path d="M0 450.0 C 150 421.0, 300 479.0, 450 435.5 S 600 459.7 600 450.0 L600 600 L0 600Z" fill="#1a1210" opacity="0.22"/>
+<path d="M0 520.0 C 150 478.2, 300 561.8, 450 499.1 S 600 533.9 600 520.0 L600 600 L0 600Z" fill="#1a1210" opacity="0.34"/>
+</svg>

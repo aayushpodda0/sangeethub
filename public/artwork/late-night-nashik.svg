@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" role="img" aria-label="Late Night Nashik cover art">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3A0CA3"/><stop offset="1" stop-color="#F72585"/></linearGradient></defs>
+<rect width="600" height="600" fill="url(#g)"/>
+<circle cx="458.7" cy="241.6" r="100.3" fill="#FFB703" opacity="0.9"/>
+<circle cx="458.7" cy="241.6" r="145.4" fill="none" stroke="#FFB703" stroke-opacity="0.35" stroke-width="3"/>
+<path d="M0 380.0 C 150 319.8, 300 440.2, 450 349.9 S 600 400.1 600 380.0 L600 600 L0 600Z" fill="#1a1210" opacity="0.14"/>
+<path d="M0 450.0 C 150 409.9, 300 490.1, 450 429.9 S 600 463.4 600 450.0 L600 600 L0 600Z" fill="#1a1210" opacity="0.22"/>
+<path d="M0 520.0 C 150 495.1, 300 544.9, 450 507.6 S 600 528.3 600 520.0 L600 600 L0 600Z" fill="#1a1210" opacity="0.34"/>
+</svg>

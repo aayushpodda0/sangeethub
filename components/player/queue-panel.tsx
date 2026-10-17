@@ -1,9 +1,10 @@
 "use client";
 
 import { GripVertical, ListMusic, X } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { useDismiss } from "@/lib/hooks/use-dismiss";
 import { usePlayerStore } from "@/lib/player/store";
 import { cn } from "@/lib/utils";
 
@@ -14,9 +15,12 @@ export function QueuePanel() {
   const removeFromQueue = usePlayerStore((state) => state.removeFromQueue);
   const reorderQueue = usePlayerStore((state) => state.reorderQueue);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const close = useCallback(() => setOpen(false), []);
+  useDismiss(containerRef, close, open); // click outside or press Escape to close
 
   return (
-    <div className="relative">
+    <div ref={containerRef} className="relative">
       <Button
         variant="ghost"
         size="icon"

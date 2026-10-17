@@ -7,6 +7,7 @@ import { TrackList } from "@/components/music/track-list";
 import { Button } from "@/components/ui/button";
 import { prisma } from "@/lib/db/prisma";
 import { getAuthSession } from "@/lib/auth/session";
+import { getLikedTrackIds } from "@/lib/library/state";
 import { toDiscoveryTrack } from "@/lib/music/serializers";
 import { buildRecommendationContext } from "@/lib/recommendations/context";
 import { DeterministicRecommendationService } from "@/lib/recommendations/deterministic-service";
@@ -73,6 +74,7 @@ export default async function DashboardPage() {
   }));
 
   const trendingTracks = trending.map(toDiscoveryTrack);
+  const likedIds = await getLikedTrackIds(session.user.id, trendingTracks.map((t) => t.id));
   const firstName = (session.user.name ?? session.user.username ?? "there").split(" ")[0];
 
   return (
@@ -84,14 +86,14 @@ export default async function DashboardPage() {
           style={{ backgroundImage: "var(--gradient-sunset)" }}
           aria-hidden
         />
-        <div className="absolute inset-0 bg-background/10" aria-hidden />
+        <div className="absolute inset-0 bg-black/25" aria-hidden />
         <div className="relative flex flex-wrap items-end justify-between gap-6 px-6 py-10 sm:px-10 sm:py-14">
           <div>
-            <p className="text-sm font-medium text-accent-foreground/80">Good to see you</p>
+            <p className="text-sm font-medium text-accent-foreground">Good to see you</p>
             <h1 className="font-display mt-1 text-4xl font-medium tracking-tight text-accent-foreground sm:text-5xl">
               {firstName}
             </h1>
-            <p className="mt-3 max-w-md text-sm text-accent-foreground/85">
+            <p className="mt-3 max-w-md text-sm text-accent-foreground">
               Discover music across moods, languages, and regional scenes.
             </p>
           </div>
@@ -107,7 +109,7 @@ export default async function DashboardPage() {
       {recommendationCards.length > 0 && (
         <section className="mb-10">
           <h2 className="font-display text-2xl font-medium">Made for you</h2>
-          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-4 grid grid-cols-[repeat(auto-fit,minmax(15rem,1fr))] gap-3">
             {recommendationCards.map((card) => (
               <Link
                 key={card.trackId}
@@ -123,7 +125,7 @@ export default async function DashboardPage() {
       )}
 
       <div className="grid gap-10 lg:grid-cols-[2fr_1fr]">
-        <TrackList title="Trending regional music" tracks={trendingTracks} ranked />
+        <TrackList title="Trending regional music" tracks={trendingTracks} ranked likedTrackIds={[...likedIds]} />
 
         <aside className="space-y-8">
           <section>

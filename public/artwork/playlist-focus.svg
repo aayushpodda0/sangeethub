@@ -1,15 +1,9 @@
-<svg width="1200" height="1200" viewBox="0 0 1200 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="1200" height="1200" rx="80" fill="#1A1410"/>
-  <rect x="180" y="220" width="840" height="760" rx="56" fill="url(#paint0_linear)"/>
-  <circle cx="380" cy="520" r="90" fill="#FFE6D8"/>
-  <rect x="530" y="460" width="340" height="26" rx="13" fill="#FFE6D8"/>
-  <rect x="530" y="520" width="250" height="26" rx="13" fill="#FFE6D8" fill-opacity="0.82"/>
-  <rect x="530" y="580" width="300" height="26" rx="13" fill="#FFE6D8" fill-opacity="0.65"/>
-  <defs>
-    <linearGradient id="paint0_linear" x1="180" y1="220" x2="1020" y2="980" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#FF8A5F"/>
-      <stop offset="1" stop-color="#6B2A1B"/>
-    </linearGradient>
-  </defs>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" role="img" aria-label="Focus Routes cover art">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#264653"/><stop offset="1" stop-color="#E9C46A"/></linearGradient></defs>
+<rect width="600" height="600" fill="url(#g)"/>
+<circle cx="241.0" cy="309.8" r="95.7" fill="#E76F51" opacity="0.9"/>
+<circle cx="241.0" cy="309.8" r="138.8" fill="none" stroke="#E76F51" stroke-opacity="0.35" stroke-width="3"/>
+<path d="M0 380.0 C 150 323.7, 300 436.3, 450 351.9 S 600 398.8 600 380.0 L600 600 L0 600Z" fill="#1a1210" opacity="0.14"/>
+<path d="M0 450.0 C 150 388.3, 300 511.7, 450 419.1 S 600 470.6 600 450.0 L600 600 L0 600Z" fill="#1a1210" opacity="0.22"/>
+<path d="M0 520.0 C 150 493.0, 300 547.0, 450 506.5 S 600 529.0 600 520.0 L600 600 L0 600Z" fill="#1a1210" opacity="0.34"/>
 </svg>
-

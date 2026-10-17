@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" role="img" aria-label="Tabla Tides cover art">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3A0CA3"/><stop offset="1" stop-color="#F72585"/></linearGradient></defs>
+<rect width="600" height="600" fill="url(#g)"/>
+<circle cx="295.6" cy="262.9" r="83.9" fill="#FFB703" opacity="0.9"/>
+<circle cx="295.6" cy="262.9" r="121.6" fill="none" stroke="#FFB703" stroke-opacity="0.35" stroke-width="3"/>
+<path d="M0 380.0 C 150 311.3, 300 448.7, 450 345.7 S 600 402.9 600 380.0 L600 600 L0 600Z" fill="#1a1210" opacity="0.14"/>
+<path d="M0 450.0 C 150 392.7, 300 507.3, 450 421.3 S 600 469.1 600 450.0 L600 600 L0 600Z" fill="#1a1210" opacity="0.22"/>
+<path d="M0 520.0 C 150 486.6, 300 553.4, 450 503.3 S 600 531.1 600 520.0 L600 600 L0 600Z" fill="#1a1210" opacity="0.34"/>
+</svg>

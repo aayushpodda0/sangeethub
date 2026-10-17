@@ -2,6 +2,7 @@ import type { Prisma } from "@prisma/client";
 
 import { prisma } from "@/lib/db/prisma";
 import { toDiscoveryTrack } from "@/lib/music/serializers";
+import { similarityScore } from "@/lib/music/similarity";
 import type { MusicProvider, ProviderTrack } from "@/lib/music/provider";
 
 const trackWithRelations = {
@@ -45,5 +46,34 @@ export class DemoMusicProvider implements MusicProvider {
     });
 
     return track ? toDiscoveryTrack(track) : null;
+  }
+
+  async getSimilarTracks(trackId: string, limit = 6): Promise<ProviderTrack[]> {
+    const source = await this.getTrackById(trackId);
+    if (!source) return [];
+
+    const clauses: Prisma.TrackWhereInput[] = [
+      { language: source.language },
+      ...(source.genreNames.length > 0
+        ? [{ genres: { some: { genre: { name: { in: source.genreNames } } } } }]
+        : []),
+      ...(source.moods.length > 0 ? [{ moods: { hasSome: source.moods } }] : []),
+      ...(source.activities.length > 0 ? [{ activities: { hasSome: source.activities } }] : []),
+    ];
+
+    const candidates = await prisma.track.findMany({
+      where: { id: { not: trackId }, OR: clauses },
+      include: trackWithRelations,
+      orderBy: { popularity: "desc" },
+      take: 60,
+    });
+
+    return candidates
+      .map(toDiscoveryTrack)
+      .map((track) => ({ track, score: similarityScore(source, track) }))
+      .filter((entry) => entry.score > 0)
+      .sort((a, b) => b.score - a.score || b.track.popularity - a.track.popularity)
+      .slice(0, limit)
+      .map((entry) => entry.track);
   }
 }

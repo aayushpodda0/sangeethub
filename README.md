@@ -108,6 +108,14 @@ See `.env.example`. At minimum:
 | `APP_HOSTNAME` | Optional, default `localhost` |
 | `SEED_ADMIN_PASSWORD` | Required only when seeding with `NODE_ENV=production` |
 
+## Demo catalog
+
+`npm run db:seed` loads a fictional catalog (19 artists, 19 albums, 57 tracks across all nine languages, three demo playlists)
+and gives the demo listener some history, likes and follows so recommendations and insights are populated on first login.
+It is safe to re-run: catalog rows are updated in place and playlists are only ever appended to.
+Cover art is generated SVG (`npm run artwork:generate` rewrites `public/artwork`, deterministically). Demo audio is short
+royalty-free sample clips, so tracks are 3-9 seconds long; see `prisma/seed-data.ts` to change that.
+
 ## Demo accounts (after seeding — development only)
 
 These have well-known passwords. Never seed demo data into a real production database
@@ -129,6 +137,7 @@ These have well-known passwords. Never seed demo data into a real production dat
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm run lint` | ESLint |
 | `npm run db:deploy` | `prisma migrate deploy` (production migrations) |
+| `npm run artwork:generate` | Regenerate the demo cover art in `public/artwork` |
 | `npm run db:studio` | Prisma Studio |
 
 ## Testing

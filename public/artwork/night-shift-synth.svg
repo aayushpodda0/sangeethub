@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" role="img" aria-label="Night Shift Synth cover art">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3A0CA3"/><stop offset="1" stop-color="#F72585"/></linearGradient></defs>
+<rect width="600" height="600" fill="url(#g)"/>
+<circle cx="223.8" cy="293.5" r="128.0" fill="#FFB703" opacity="0.9"/>
+<circle cx="223.8" cy="293.5" r="185.5" fill="none" stroke="#FFB703" stroke-opacity="0.35" stroke-width="3"/>
+<path d="M0 380.0 C 150 323.3, 300 436.7, 450 351.6 S 600 398.9 600 380.0 L600 600 L0 600Z" fill="#1a1210" opacity="0.14"/>
+<path d="M0 450.0 C 150 396.4, 300 503.6, 450 423.2 S 600 467.9 600 450.0 L600 600 L0 600Z" fill="#1a1210" opacity="0.22"/>
+<path d="M0 520.0 C 150 489.2, 300 550.8, 450 504.6 S 600 530.3 600 520.0 L600 600 L0 600Z" fill="#1a1210" opacity="0.34"/>
+</svg>

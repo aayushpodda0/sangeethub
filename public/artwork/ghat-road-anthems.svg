@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" role="img" aria-label="Ghat Road Anthems cover art">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7A2E3D"/><stop offset="1" stop-color="#F2542D"/></linearGradient></defs>
+<rect width="600" height="600" fill="url(#g)"/>
+<circle cx="376.2" cy="262.4" r="79.3" fill="#F6C66B" opacity="0.9"/>
+<circle cx="376.2" cy="262.4" r="114.9" fill="none" stroke="#F6C66B" stroke-opacity="0.35" stroke-width="3"/>
+<path d="M0 380.0 C 150 344.4, 300 415.6, 450 362.2 S 600 391.9 600 380.0 L600 600 L0 600Z" fill="#1a1210" opacity="0.14"/>
+<path d="M0 450.0 C 150 395.8, 300 504.2, 450 422.9 S 600 468.1 600 450.0 L600 600 L0 600Z" fill="#1a1210" opacity="0.22"/>
+<path d="M0 520.0 C 150 495.3, 300 544.7, 450 507.6 S 600 528.2 600 520.0 L600 600 L0 600Z" fill="#1a1210" opacity="0.34"/>
+</svg>

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" role="img" aria-label="Kaveri Beats">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3A0CA3"/><stop offset="1" stop-color="#F72585"/></linearGradient></defs>
+<rect width="400" height="400" fill="url(#g)"/>
+<circle cx="320" cy="90" r="46" fill="#FFB703" opacity="0.85"/>
+<path d="M0 330 C 100 290, 220 360, 400 300 L400 400 L0 400Z" fill="#1a1210" opacity="0.25"/>
+<text x="200" y="232" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="140" font-weight="600" fill="#fff8f0" fill-opacity="0.95">KB</text>
+</svg>

@@ -9,4 +9,6 @@ export interface MusicProvider {
   name: string;
   searchTracks(query: string): Promise<ProviderTrack[]>;
   getTrackById(trackId: string): Promise<ProviderTrack | null>;
+  /** Tracks most alike `trackId` (never includes the track itself), best first. */
+  getSimilarTracks(trackId: string, limit?: number): Promise<ProviderTrack[]>;
 }

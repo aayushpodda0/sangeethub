@@ -23,7 +23,8 @@
     "db:seed": "prisma db seed",
     "db:studio": "prisma studio",
     "postinstall": "prisma generate",
-    "db:deploy": "prisma migrate deploy"
+    "db:deploy": "prisma migrate deploy",
+    "artwork:generate": "tsx scripts/generate-artwork.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.7.1",

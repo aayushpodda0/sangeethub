@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" role="img" aria-label="Commute Mix cover art">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#264653"/><stop offset="1" stop-color="#E9C46A"/></linearGradient></defs>
+<rect width="600" height="600" fill="url(#g)"/>
+<circle cx="378.7" cy="276.1" r="135.4" fill="#E76F51" opacity="0.9"/>
+<circle cx="378.7" cy="276.1" r="196.4" fill="none" stroke="#E76F51" stroke-opacity="0.35" stroke-width="3"/>
+<path d="M0 380.0 C 150 345.0, 300 415.0, 450 362.5 S 600 391.7 600 380.0 L600 600 L0 600Z" fill="#1a1210" opacity="0.14"/>
+<path d="M0 450.0 C 150 396.7, 300 503.3, 450 423.3 S 600 467.8 600 450.0 L600 600 L0 600Z" fill="#1a1210" opacity="0.22"/>
+<path d="M0 520.0 C 150 488.7, 300 551.3, 450 504.3 S 600 530.4 600 520.0 L600 600 L0 600Z" fill="#1a1210" opacity="0.34"/>
+</svg>

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" role="img" aria-label="Temple Festival cover art">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#C2410C"/><stop offset="1" stop-color="#FDBA74"/></linearGradient></defs>
+<rect width="600" height="600" fill="url(#g)"/>
+<circle cx="222.8" cy="283.9" r="85.5" fill="#7C2D12" opacity="0.9"/>
+<circle cx="222.8" cy="283.9" r="124.0" fill="none" stroke="#7C2D12" stroke-opacity="0.35" stroke-width="3"/>
+<path d="M0 380.0 C 150 310.2, 300 449.8, 450 345.1 S 600 403.3 600 380.0 L600 600 L0 600Z" fill="#1a1210" opacity="0.14"/>
+<path d="M0 450.0 C 150 391.3, 300 508.7, 450 420.6 S 600 469.6 600 450.0 L600 600 L0 600Z" fill="#1a1210" opacity="0.22"/>
+<path d="M0 520.0 C 150 477.6, 300 562.4, 450 498.8 S 600 534.1 600 520.0 L600 600 L0 600Z" fill="#1a1210" opacity="0.34"/>
+</svg>

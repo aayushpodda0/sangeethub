@@ -16,6 +16,9 @@ Don't move something to Completed without evidence.
 | Collaboration: invites (accept/decline), contributor/moderator permissions, collaborator management, activity feed | Automated (≈40 API tests: every mutating route rejects anonymous; owner/moderator/contributor/stranger matrix; invalid/expired/duplicate/owner tokens) |
 | Recommendations (rule-based + explanations) | Automated (scoring/explanations); DB query layer Manual |
 | Party rooms: join, shared votable queue, host-only controls, synced playback | Automated (11 tests: real Socket.IO server + 2 clients, in-memory DB); **real multi-browser sync Unverified** |
+| Like / follow / save-album / add-to-queue / add-to-playlist actions on track, album, artist pages and track lists | Automated (15 component tests: optimistic update, rollback on failure, double-click guard, 409 handling, outside-click/Escape dismissal; plus API tests) |
+| Demo catalog: 19 fictional artists, 19 albums, 57 tracks across all 9 languages, generated cover art, seeded demo-listener history/likes/follows | Automated (10 integrity tests: unique slugs, valid enums, references resolve, every language covered, durations match audio) ; reseed itself Manual |
+| Similar tracks (explainable weighted scoring) | Automated |
 | Insights, profiles, sharing | Manual |
 | Security hardening (see below), health endpoint, prod env validation | Automated where marked |
 
@@ -23,11 +26,11 @@ Don't move something to Completed without evidence.
 Finalization: audit → harden → test → document. Audit baseline: commit `f1819db`, 2026-10-12.
 
 ## In progress
-- UI polish: redesign pass 1 shipped (tokens, fonts, home, shared track list). Other pages still use the old look.
+- UI polish: redesign pass 1 (tokens, fonts, home, shared track list) + track/album/artist pages. Search, library, discover, insights, playlists, party and profile pages still use the old look.
 
 ## Remaining
 - Mobile bottom navigation + expandable mobile player (must coexist with the fixed player bar; needs browser verification).
-- Render real artwork (`artworkUrl`/`imageUrl`) where available; most views still show gradient placeholders.
+- Artwork now renders on track/album/artist pages and track lists. Still gradient placeholders in: search rows, the player bar thumbnail, party room, playlist covers, profile.
 - Run and fix the Playwright E2E suite (specs exist; never executed by the author of this audit).
 - Loading/empty/error-state pass verified in a browser on every page (implemented in code, not visually verified).
 
@@ -35,6 +38,8 @@ Finalization: audit → harden → test → document. Audit baseline: commit `f1
 - None known. (A party-queue add failure after removals/skips and a server crash on malformed socket payloads were found and fixed in this audit — see Last Audit.)
 
 ## Technical Debt
+- Demo audio clips are only 3, 6 and 9 seconds long, so demo tracks are listed with those true durations. Swap `PREVIEW_CLIPS` in `prisma/seed-data.ts` for longer royalty-free audio and rerun `npm run db:seed`.
+- `AddToPlaylistMenu` only lists playlists you own (the playlists API doesn't say which collaborative playlists you may edit).
 - Album/artist pages query Prisma directly; only tracks/search go through `MusicProvider`. **Deliberate:** adding provider DTOs for a provider that doesn't exist yet would be speculative. Revisit when integrating a real API.
 - API tests mock Prisma: they prove handler/authorization logic, not SQL, constraints, or cascades. A real-Postgres integration suite (CI service container) would close this gap.
 - Rate limiting and Socket.IO rooms are in-process → single instance only.

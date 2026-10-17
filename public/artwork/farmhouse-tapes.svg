@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" role="img" aria-label="Farmhouse Tapes cover art">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#264653"/><stop offset="1" stop-color="#E9C46A"/></linearGradient></defs>
+<rect width="600" height="600" fill="url(#g)"/>
+<circle cx="417.6" cy="168.9" r="123.3" fill="#E76F51" opacity="0.9"/>
+<circle cx="417.6" cy="168.9" r="178.8" fill="none" stroke="#E76F51" stroke-opacity="0.35" stroke-width="3"/>
+<path d="M0 380.0 C 150 311.2, 300 448.8, 450 345.6 S 600 402.9 600 380.0 L600 600 L0 600Z" fill="#1a1210" opacity="0.14"/>
+<path d="M0 450.0 C 150 412.1, 300 487.9, 450 431.0 S 600 462.6 600 450.0 L600 600 L0 600Z" fill="#1a1210" opacity="0.22"/>
+<path d="M0 520.0 C 150 471.9, 300 568.1, 450 496.0 S 600 536.0 600 520.0 L600 600 L0 600Z" fill="#1a1210" opacity="0.34"/>
+</svg>

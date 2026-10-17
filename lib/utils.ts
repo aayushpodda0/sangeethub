@@ -12,3 +12,9 @@ export function formatDuration(totalSeconds: number) {
   return `${mins}:${secs.toString().padStart(2, "0")}`;
 }
 
+
+/** "ELECTRO_POP" / "HINDI" -> "Electro pop" / "Hindi" (sentence case for enum values shown in the UI). */
+export function titleCase(value: string) {
+  const text = value.replace(/_/g, " ").toLowerCase();
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
