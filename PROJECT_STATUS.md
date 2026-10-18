@@ -28,6 +28,7 @@ Finalization: audit → harden → test → document. Audit baseline: commit `f1
 
 ## In progress
 - UI polish: Midnight Ember tokens, fonts, home, shared track lists, search/discover/library/playlist rows, artwork surfaces, player and queue sizing are implemented. Browser review remains pending for insights, party and profile layouts.
+- Music architecture: catalog reads now go through the typed Prisma-backed `MusicService`; playlist persistence/authorization and user-owned library state remain separate boundaries.
 
 ## Remaining
 - Mobile bottom navigation + expandable mobile player (must coexist with the fixed player bar; needs browser verification).
@@ -35,6 +36,7 @@ Finalization: audit → harden → test → document. Audit baseline: commit `f1
 - Run and fix the Playwright E2E suite (specs exist; never executed by the author of this audit).
 - Loading/empty/error-state pass verified in a browser on every page (implemented in code, not visually verified).
 - Browser responsive/accessibility review is still pending for desktop, tablet, and mobile. Reduced-motion CSS and visible focus styles are implemented.
+- Music service browser/integration verification is pending against a running Postgres instance.
 
 ## Known Bugs
 - None known. (A party-queue add failure after removals/skips and a server crash on malformed socket payloads were found and fixed in this audit — see Last Audit.)

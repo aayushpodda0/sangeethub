@@ -1,8 +1,9 @@
 import { apiError, apiSuccess } from "@/lib/api/response";
 import { getAuthSession } from "@/lib/auth/session";
-import { prisma } from "@/lib/db/prisma";
 import { getPlaylistAccess } from "@/lib/playlists/authorization";
 import { addTrackSchema } from "@/lib/playlists/schemas";
+import { musicService } from "@/lib/music/service";
+import { prisma } from "@/lib/db/prisma";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -35,10 +36,7 @@ export async function POST(request: Request, { params }: RouteParams) {
   }
 
   try {
-    const track = await prisma.track.findUnique({
-      where: { id: parsed.data.trackId },
-      select: { id: true, title: true },
-    });
+    const track = await musicService.getTrackSummary(parsed.data.trackId);
     if (!track) {
       return apiError(404, "TRACK_NOT_FOUND", "That track doesn't exist.");
     }

@@ -8,9 +8,8 @@ import { TrackList } from "@/components/music/track-list";
 import { PlayTrackButton } from "@/components/player/play-track-button";
 import { ShareButton } from "@/components/shared/share-button";
 import { getAuthSession } from "@/lib/auth/session";
-import { prisma } from "@/lib/db/prisma";
 import { getLikedTrackIds, isAlbumSaved } from "@/lib/library/state";
-import { toDiscoveryTrack } from "@/lib/music/serializers";
+import { musicService } from "@/lib/music/service";
 import { formatDuration, titleCase } from "@/lib/utils";
 
 type AlbumPageProps = {
@@ -19,27 +18,14 @@ type AlbumPageProps = {
 
 export async function generateMetadata({ params }: AlbumPageProps): Promise<Metadata> {
   const { id } = await params;
-  const album = await prisma.album.findUnique({ where: { id }, select: { title: true } });
+  const album = await musicService.getAlbumById(id);
   return { title: album ? `${album.title} | SangeetHub` : "Album | SangeetHub" };
 }
 
 export default async function AlbumPage({ params }: AlbumPageProps) {
   const { id } = await params;
 
-  const album = await prisma.album.findUnique({
-    where: { id },
-    include: {
-      primaryArtist: true,
-      tracks: {
-        include: {
-          album: true,
-          artists: { include: { artist: true } },
-          genres: { include: { genre: true } },
-        },
-        orderBy: { title: "asc" },
-      },
-    },
-  });
+  const album = await musicService.getAlbumById(id);
 
   if (!album) {
     notFound();
@@ -47,7 +33,7 @@ export default async function AlbumPage({ params }: AlbumPageProps) {
 
   const session = await getAuthSession();
   const userId = session?.user?.id;
-  const tracks = album.tracks.map(toDiscoveryTrack);
+  const tracks = album.tracks.map((track) => musicService.toDiscoveryTrack(track));
   const [likedIds, saved] = await Promise.all([
     getLikedTrackIds(userId, tracks.map((t) => t.id)),
     isAlbumSaved(userId, album.id),

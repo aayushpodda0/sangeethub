@@ -1,7 +1,6 @@
 import { apiError, apiSuccess } from "@/lib/api/response";
-import { DemoMusicProvider } from "@/lib/music/demo-provider";
+import { musicService } from "@/lib/music/service";
 
-const provider = new DemoMusicProvider();
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -16,7 +15,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    const tracks = await provider.searchTracks(query);
+    const tracks = await musicService.searchTracks(query);
     return apiSuccess({ tracks, query });
   } catch {
     return apiError(500, "SEARCH_FAILED", "Something went wrong while searching. Please try again.");

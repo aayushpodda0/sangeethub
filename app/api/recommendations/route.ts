@@ -1,7 +1,6 @@
 import { apiError, apiSuccess } from "@/lib/api/response";
 import { getAuthSession } from "@/lib/auth/session";
-import { prisma } from "@/lib/db/prisma";
-import { toDiscoveryTrack } from "@/lib/music/serializers";
+import { musicService } from "@/lib/music/service";
 import { buildRecommendationContext } from "@/lib/recommendations/context";
 import { DeterministicRecommendationService } from "@/lib/recommendations/deterministic-service";
 
@@ -22,14 +21,7 @@ export async function GET() {
       return apiSuccess({ recommendations: [] });
     }
 
-    const tracks = await prisma.track.findMany({
-      where: { id: { in: results.map((r) => r.trackId) } },
-      include: {
-        album: true,
-        artists: { include: { artist: true } },
-        genres: { include: { genre: true } },
-      },
-    });
+    const tracks = await musicService.getTracksByIds(results.map((r) => r.trackId));
     const trackById = new Map(tracks.map((t) => [t.id, t]));
 
     const recommendations = results
@@ -37,7 +29,7 @@ export async function GET() {
         const track = trackById.get(result.trackId);
         if (!track) return null;
         return {
-          track: toDiscoveryTrack(track),
+          track,
           score: result.score,
           explanation: result.explanation,
         };

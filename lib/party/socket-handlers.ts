@@ -4,6 +4,7 @@ import type { Server, Socket } from "socket.io";
 
 import { prismaErrorCode } from "@/lib/api/prisma-errors";
 import { prisma } from "@/lib/db/prisma";
+import { musicService } from "@/lib/music/service";
 import { computePlaybackState } from "@/lib/party/playback-state";
 import {
   MAX_PARTY_QUEUE_SIZE,
@@ -194,7 +195,7 @@ export function registerPartyHandlers(io: Server<ClientToServerEvents, ServerToC
         const room = await prisma.partyRoom.findUnique({ where: { roomCode } });
         if (!room) return;
 
-        const track = await prisma.track.findUnique({ where: { id: trackId }, select: { id: true } });
+        const track = await musicService.getTrackSummary(trackId);
         if (!track) {
           socket.emit("room:error", { message: "That track doesn't exist." });
           return;

@@ -82,4 +82,15 @@ describe("DemoMusicProvider.getSimilarTracks", () => {
     prismaMock.track.findMany.mockResolvedValue(["a", "b", "c", "d"].map((id) => row(id)));
     expect(await provider.getSimilarTracks("src", 2)).toHaveLength(2);
   });
+
+  it("hydrates requested track ids in caller order and omits missing catalog rows", async () => {
+    prismaMock.track.findMany.mockResolvedValue([row("b"), row("a")]);
+
+    const result = await provider.getTracksByIds(["a", "missing", "b"]);
+
+    expect(result.map((track) => track.id)).toEqual(["a", "b"]);
+    expect(prismaMock.track.findMany.mock.calls[0]![0].where).toEqual({
+      id: { in: ["a", "missing", "b"] },
+    });
+  });
 });

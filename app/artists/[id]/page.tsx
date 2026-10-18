@@ -7,9 +7,8 @@ import { Artwork } from "@/components/music/artwork";
 import { TrackList } from "@/components/music/track-list";
 import { ShareButton } from "@/components/shared/share-button";
 import { getAuthSession } from "@/lib/auth/session";
-import { prisma } from "@/lib/db/prisma";
 import { getLikedTrackIds, isFollowingArtist } from "@/lib/library/state";
-import { toDiscoveryTrack } from "@/lib/music/serializers";
+import { musicService } from "@/lib/music/service";
 import { titleCase } from "@/lib/utils";
 
 type ArtistPageProps = {
@@ -18,30 +17,14 @@ type ArtistPageProps = {
 
 export async function generateMetadata({ params }: ArtistPageProps): Promise<Metadata> {
   const { id } = await params;
-  const artist = await prisma.artist.findUnique({ where: { id }, select: { name: true } });
+  const artist = await musicService.getArtistById(id);
   return { title: artist ? `${artist.name} | SangeetHub` : "Artist | SangeetHub" };
 }
 
 export default async function ArtistPage({ params }: ArtistPageProps) {
   const { id } = await params;
 
-  const artist = await prisma.artist.findUnique({
-    where: { id },
-    include: {
-      albums: { orderBy: { releaseDate: "desc" } },
-      trackArtists: {
-        include: {
-          track: {
-            include: {
-              album: true,
-              artists: { include: { artist: true } },
-              genres: { include: { genre: true } },
-            },
-          },
-        },
-      },
-    },
-  });
+  const artist = await musicService.getArtistById(id);
 
   if (!artist) {
     notFound();
@@ -50,7 +33,7 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
   const session = await getAuthSession();
   const userId = session?.user?.id;
   const popular = artist.trackArtists
-    .map((entry) => toDiscoveryTrack(entry.track))
+    .map((entry) => musicService.toDiscoveryTrack(entry.track))
     .sort((a, b) => b.popularity - a.popularity)
     .slice(0, 10);
   const [likedIds, following] = await Promise.all([

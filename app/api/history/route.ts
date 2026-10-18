@@ -1,6 +1,7 @@
 import { apiError, apiSuccess } from "@/lib/api/response";
 import { getAuthSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
+import { musicService } from "@/lib/music/service";
 
 export async function POST(request: Request) {
   const session = await getAuthSession();
@@ -20,14 +21,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const track = await prisma.track.findUnique({
-      where: { id: trackId },
-      select: {
-        id: true,
-        albumId: true,
-        artists: { select: { artistId: true }, take: 1 },
-      },
-    });
+    const track = await musicService.getTrackPlaybackMetadata(trackId);
     if (!track) return apiError(404, "TRACK_NOT_FOUND", "That track doesn't exist.");
 
     await prisma.recentlyPlayed.create({
@@ -35,7 +29,7 @@ export async function POST(request: Request) {
         userId,
         trackId: track.id,
         albumId: track.albumId,
-        artistId: track.artists[0]?.artistId,
+        artistId: track.artistId,
       },
     });
 

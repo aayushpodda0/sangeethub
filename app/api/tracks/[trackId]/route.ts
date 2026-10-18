@@ -1,7 +1,6 @@
 import { apiError, apiSuccess } from "@/lib/api/response";
-import { DemoMusicProvider } from "@/lib/music/demo-provider";
+import { musicService } from "@/lib/music/service";
 
-const provider = new DemoMusicProvider();
 
 type RouteParams = { params: Promise<{ trackId: string }> };
 
@@ -9,7 +8,7 @@ export async function GET(_request: Request, { params }: RouteParams) {
   const { trackId } = await params;
 
   try {
-    const track = await provider.getTrackById(trackId);
+    const track = await musicService.getTrackById(trackId);
     if (!track) {
       return apiError(404, "TRACK_NOT_FOUND", "That track doesn't exist.");
     }

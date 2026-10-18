@@ -1,8 +1,7 @@
 import { z } from "zod";
 
 import { apiError, apiSuccess } from "@/lib/api/response";
-import { prisma } from "@/lib/db/prisma";
-import { toDiscoveryTrack } from "@/lib/music/serializers";
+import { musicService } from "@/lib/music/service";
 import { ACTIVITIES, LANGUAGES, MOODS } from "@/lib/music/taxonomy";
 
 const querySchema = z.object({
@@ -24,22 +23,8 @@ export async function GET(request: Request) {
   const { mood, activity, language } = parsed.data;
 
   try {
-    const tracks = await prisma.track.findMany({
-      where: {
-        ...(mood ? { moods: { has: mood } } : {}),
-        ...(activity ? { activities: { has: activity } } : {}),
-        ...(language ? { language } : {}),
-      },
-      include: {
-        album: true,
-        artists: { include: { artist: true } },
-        genres: { include: { genre: true } },
-      },
-      orderBy: { popularity: "desc" },
-      take: 30,
-    });
-
-    return apiSuccess({ tracks: tracks.map(toDiscoveryTrack) });
+    const tracks = await musicService.discoverTracks({ mood, activity, language });
+    return apiSuccess({ tracks });
   } catch (error) {
     console.error("[discover] failed:", error);
     return apiError(500, "DISCOVER_FAILED", "Couldn't load discovery results. Please try again.");

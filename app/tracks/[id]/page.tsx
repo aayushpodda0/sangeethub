@@ -10,20 +10,18 @@ import { AddToPlaylistMenu } from "@/components/playlists/add-to-playlist-menu";
 import { ShareButton } from "@/components/shared/share-button";
 import { getAuthSession } from "@/lib/auth/session";
 import { getLikedTrackIds } from "@/lib/library/state";
-import { DemoMusicProvider } from "@/lib/music/demo-provider";
+import { musicService } from "@/lib/music/service";
 import { formatDuration, titleCase } from "@/lib/utils";
 
 // Tracks are resolved through the MusicProvider so a licensed streaming API can replace the demo
 // catalog without touching this page.
-const provider = new DemoMusicProvider();
-
 type TrackPageProps = {
   params: Promise<{ id: string }>;
 };
 
 export async function generateMetadata({ params }: TrackPageProps): Promise<Metadata> {
   const { id } = await params;
-  const track = await provider.getTrackById(id);
+  const track = await musicService.getTrackById(id);
   return { title: track ? `${track.title} | SangeetHub` : "Track | SangeetHub" };
 }
 
@@ -45,7 +43,7 @@ function Facts({ label, items }: { label: string; items: string[] }) {
 
 export default async function TrackPage({ params }: TrackPageProps) {
   const { id } = await params;
-  const track = await provider.getTrackById(id);
+  const track = await musicService.getTrackById(id);
 
   if (!track) {
     notFound();
@@ -53,7 +51,7 @@ export default async function TrackPage({ params }: TrackPageProps) {
 
   const session = await getAuthSession();
   const userId = session?.user?.id;
-  const similar = await provider.getSimilarTracks(id, 6);
+  const similar = await musicService.getSimilarTracks(id, 6);
   const likedIds = await getLikedTrackIds(userId, [track.id, ...similar.map((t) => t.id)]);
 
   return (

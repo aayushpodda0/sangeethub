@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db/prisma";
+import { musicService } from "@/lib/music/service";
 import { buildReasons } from "@/lib/recommendations/reasons";
 import type {
   RecommendationContext,
@@ -14,29 +15,14 @@ export class DeterministicRecommendationService implements RecommendationService
     });
     const excludeIds = new Set(alreadyLiked.map((f) => f.trackId));
 
-    const orClauses = [
-      context.favoriteArtistIds.length > 0
-        ? { artists: { some: { artistId: { in: context.favoriteArtistIds } } } }
-        : null,
-      context.topGenreSlugs.length > 0
-        ? { genres: { some: { genre: { slug: { in: context.topGenreSlugs } } } } }
-        : null,
-      context.languagePreferences.length > 0 ? { language: { in: context.languagePreferences } } : null,
-      { popularity: { gte: 70 } },
-    ].filter((clause): clause is NonNullable<typeof clause> => clause !== null);
-
-    const candidates = await prisma.track.findMany({
-      where: {
-        id: { notIn: [...excludeIds] },
-        OR: orClauses,
+    const candidates = await musicService.getRecommendationCandidates(
+      {
+        favoriteArtistIds: context.favoriteArtistIds,
+        topGenreSlugs: context.topGenreSlugs,
+        languagePreferences: context.languagePreferences,
       },
-      include: {
-        album: true,
-        artists: { include: { artist: true } },
-        genres: { include: { genre: true } },
-      },
-      take: 80,
-    });
+      [...excludeIds],
+    );
 
     const scored = candidates.map((track) => {
       const reasons = buildReasons(track, context);

@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { prisma } from "@/lib/db/prisma";
 import { getAuthSession } from "@/lib/auth/session";
 import { getLikedTrackIds } from "@/lib/library/state";
-import { toDiscoveryTrack } from "@/lib/music/serializers";
+import { musicService } from "@/lib/music/service";
 import { buildRecommendationContext } from "@/lib/recommendations/context";
 import { DeterministicRecommendationService } from "@/lib/recommendations/deterministic-service";
 
@@ -26,15 +26,7 @@ export default async function DashboardPage() {
   }
 
   const [trending, playlists, artists, albums, recommendationContext] = await Promise.all([
-    prisma.track.findMany({
-      include: {
-        album: true,
-        artists: { include: { artist: true } },
-        genres: { include: { genre: true } },
-      },
-      orderBy: [{ popularity: "desc" }, { releaseDate: "desc" }],
-      take: 8,
-    }),
+    musicService.getTrendingTracks(8),
     prisma.playlist.findMany({
       where: {
         OR: [{ ownerId: session.user.id }, { isPublic: true }],
@@ -45,39 +37,25 @@ export default async function DashboardPage() {
       orderBy: [{ updatedAt: "desc" }],
       take: 6,
     }),
-    prisma.artist.findMany({
-      orderBy: [{ popularity: "desc" }],
-      take: 6,
-    }),
-    prisma.album.findMany({
-      include: { primaryArtist: true },
-      orderBy: [{ releaseDate: "desc" }],
-      take: 6,
-    }),
+    musicService.getFeaturedArtists(6),
+    musicService.getNewReleases(6),
     buildRecommendationContext(session.user.id),
   ]);
 
   const recommendationResults = await recommendationService.getTrackRecommendations(recommendationContext);
   const recommendedTrackIds = recommendationResults.slice(0, 4).map((r) => r.trackId);
-  const recommendedTracks =
-    recommendedTrackIds.length > 0
-      ? await prisma.track.findMany({
-          where: { id: { in: recommendedTrackIds } },
-          select: { id: true, title: true, artworkUrl: true, album: { select: { artworkUrl: true } } },
-        })
-      : [];
+  const recommendedTracks = await musicService.getTracksByIds(recommendedTrackIds);
   const trackTitleById = new Map(recommendedTracks.map((t) => [t.id, t.title]));
+  const trackById = new Map(recommendedTracks.map((track) => [track.id, track]));
 
   const recommendationCards = recommendationResults.slice(0, 4).map((r) => ({
     trackId: r.trackId,
     trackTitle: trackTitleById.get(r.trackId) ?? "",
-    artworkUrl: recommendedTracks.find((track) => track.id === r.trackId)?.artworkUrl
-      ?? recommendedTracks.find((track) => track.id === r.trackId)?.album.artworkUrl
-      ?? null,
+    artworkUrl: trackById.get(r.trackId)?.artworkUrl ?? null,
     ...r.explanation,
   }));
 
-  const trendingTracks = trending.map(toDiscoveryTrack);
+  const trendingTracks = trending;
   const likedIds = await getLikedTrackIds(session.user.id, trendingTracks.map((t) => t.id));
   const firstName = (session.user.name ?? session.user.username ?? "there").split(" ")[0];
 
