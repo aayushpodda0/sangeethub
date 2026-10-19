@@ -4,12 +4,23 @@ import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useState } from "react";
 
-import { PlayTrackButton } from "@/components/player/play-track-button";
 import { Artwork } from "@/components/music/artwork";
+import { PlayTrackButton } from "@/components/player/play-track-button";
 import { cn, formatDuration } from "@/lib/utils";
 import type { DiscoveryTrack } from "@/types/music";
 
-const MOODS = ["FOCUS", "WORKOUT", "RELAX", "TRAVEL", "PARTY", "SLEEP", "HAPPY", "SAD", "ENERGETIC", "CALM"] as const;
+const MOODS = [
+  "FOCUS",
+  "WORKOUT",
+  "RELAX",
+  "TRAVEL",
+  "PARTY",
+  "SLEEP",
+  "HAPPY",
+  "SAD",
+  "ENERGETIC",
+  "CALM",
+] as const;
 const ACTIVITIES = [
   "STUDY",
   "GYM",
@@ -62,7 +73,9 @@ function ChipRow({
 }) {
   return (
     <div className="mb-4">
-      <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</h2>
+      <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        {label}
+      </h2>
       <div className="flex flex-wrap gap-2">
         {options.map((option) => (
           <button
@@ -72,7 +85,9 @@ function ChipRow({
             onClick={() => onChange(value === option ? null : option)}
             className={cn(
               "rounded-full border border-border px-3 py-1.5 text-sm transition",
-              value === option ? "border-accent bg-accent/10 text-accent" : "text-muted-foreground hover:bg-muted",
+              value === option
+                ? "border-accent bg-accent/10 text-accent"
+                : "text-muted-foreground hover:bg-muted",
             )}
           >
             {titleCase(option)}
@@ -98,7 +113,11 @@ export function DiscoverPageContent({ independentArtists, languageCounts }: Prop
   const { data: tracks, isFetching } = useQuery({
     queryKey: ["discover", mood, activity, language],
     queryFn: () =>
-      fetchDiscover({ mood: mood ?? undefined, activity: activity ?? undefined, language: language ?? undefined }),
+      fetchDiscover({
+        mood: mood ?? undefined,
+        activity: activity ?? undefined,
+        language: language ?? undefined,
+      }),
     enabled: hasFilter,
   });
 
@@ -138,11 +157,15 @@ export function DiscoverPageContent({ independentArtists, languageCounts }: Prop
           {hasFilter && !isFetching && tracks && tracks.length > 0 && (
             <ul className="space-y-1">
               {tracks.map((track) => (
-                <li key={track.id} className="flex items-center gap-3 rounded-xl px-2 py-2 hover:bg-muted">
+                <li
+                  key={track.id}
+                  className="flex items-center gap-3 rounded-xl px-2 py-2 hover:bg-muted"
+                >
                   <Artwork
                     src={track.artworkUrl}
                     seed={track.id}
-                    alt={`${track.title} cover art`}
+                    alt=""
+                    decorative
                     className="size-10 rounded-lg"
                   />
                   <div className="min-w-0 flex-1">
@@ -189,7 +212,10 @@ export function DiscoverPageContent({ independentArtists, languageCounts }: Prop
             <ul className="mt-3 space-y-2">
               {independentArtists.map((artist) => (
                 <li key={artist.id}>
-                  <Link href={`/artists/${artist.id}`} className="text-sm font-medium hover:underline">
+                  <Link
+                    href={`/artists/${artist.id}`}
+                    className="text-sm font-medium hover:underline"
+                  >
                     {artist.name}
                   </Link>
                   <p className="text-xs text-muted-foreground">

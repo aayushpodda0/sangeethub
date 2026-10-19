@@ -28,10 +28,7 @@ export function TrackList({ title, tracks, ranked = false, likedTrackIds }: Trac
       ) : (
         <ul className="mt-4 divide-y divide-border/60">
           {tracks.map((track, index) => (
-            <li
-              key={track.id}
-              className="group flex items-center gap-3 rounded-2xl px-2 py-2.5 transition hover:bg-muted/70 sm:gap-4"
-            >
+            <li key={track.id} className="flex items-center gap-3 py-3 sm:gap-4">
               {ranked && (
                 <span className="font-display w-6 shrink-0 text-right text-lg text-muted-foreground/70">
                   {index + 1}
@@ -41,12 +38,12 @@ export function TrackList({ title, tracks, ranked = false, likedTrackIds }: Trac
                 src={track.artworkUrl}
                 seed={track.id}
                 alt={`${track.title} cover art`}
-                className="size-12 rounded-lg shadow-sm"
+                className="size-11"
               />
               <div className="min-w-0 flex-1">
                 <Link
                   href={`/tracks/${track.id}`}
-                  className="block truncate text-sm font-semibold hover:text-accent"
+                  className="block truncate text-sm font-medium hover:text-accent"
                 >
                   {track.title}
                 </Link>
@@ -62,7 +59,7 @@ export function TrackList({ title, tracks, ranked = false, likedTrackIds }: Trac
                 {formatDuration(track.durationSeconds)}
               </span>
               <TrackActions track={track} liked={liked ? liked.has(track.id) : undefined} />
-              <PlayTrackButton track={track} queue={tracks} />
+              <PlayTrackButton track={track} queue={tracks} compact />
             </li>
           ))}
         </ul>

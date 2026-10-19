@@ -20,7 +20,10 @@ type LibraryData = {
     savedAt: string;
     album: { id: string; title: string; artworkUrl: string | null; artistName: string };
   }[];
-  followedArtists: { followedAt: string; artist: { id: string; name: string; imageUrl: string | null } }[];
+  followedArtists: {
+    followedAt: string;
+    artist: { id: string; name: string; imageUrl: string | null };
+  }[];
   recentlyPlayed: { playedAt: string; track: DiscoveryTrack }[];
 };
 
@@ -91,7 +94,9 @@ export function LibraryPageContent() {
   if (isError || !data) {
     return (
       <main className="mx-auto min-h-screen w-full max-w-3xl px-4 py-6 sm:px-6">
-        <p className="text-sm text-destructive">{error?.message ?? "Couldn't load your library."}</p>
+        <p className="text-sm text-destructive">
+          {error?.message ?? "Couldn't load your library."}
+        </p>
       </main>
     );
   }
@@ -109,7 +114,9 @@ export function LibraryPageContent() {
             onClick={() => setTab(id)}
             className={cn(
               "flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-sm transition",
-              tab === id ? "border-accent bg-accent/10 text-accent" : "text-muted-foreground hover:bg-muted",
+              tab === id
+                ? "border-accent bg-accent/10 text-accent"
+                : "text-muted-foreground hover:bg-muted",
             )}
           >
             <Icon className="size-3.5" />
@@ -136,23 +143,41 @@ export function LibraryPageContent() {
 
           {filteredLikedTracks.length === 0 ? (
             <p className="py-12 text-center text-sm text-muted-foreground">
-              {data.likedTracks.length === 0 ? "No liked songs yet." : "No matches for that filter."}
+              {data.likedTracks.length === 0
+                ? "No liked songs yet."
+                : "No matches for that filter."}
             </p>
           ) : (
             <ul className="space-y-1">
               {filteredLikedTracks.map(({ track }) => (
-                <li key={track.id} className="flex items-center gap-3 rounded-xl px-2 py-2 hover:bg-muted">
+                <li
+                  key={track.id}
+                  className="flex items-center gap-3 rounded-xl px-2 py-2 hover:bg-muted"
+                >
                   <button
                     type="button"
                     aria-label={`Play ${track.title}`}
-                    onClick={() => playTrack(track, data.likedTracks.map((t) => t.track))}
-                    className="size-10 shrink-0 overflow-hidden rounded-lg"
+                    onClick={() =>
+                      playTrack(
+                        track,
+                        data.likedTracks.map((t) => t.track),
+                      )
+                    }
+                    className="shrink-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                   >
-                    <Artwork src={track.artworkUrl} seed={track.id} alt="" className="size-full" />
+                    <Artwork
+                      src={track.artworkUrl}
+                      seed={track.id}
+                      alt=""
+                      decorative
+                      className="size-10 rounded-lg"
+                    />
                   </button>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium">{track.title}</p>
-                    <p className="truncate text-xs text-muted-foreground">{track.artistNames.join(", ")}</p>
+                    <p className="truncate text-xs text-muted-foreground">
+                      {track.artistNames.join(", ")}
+                    </p>
                   </div>
                   <span className="hidden shrink-0 text-xs tabular-nums text-muted-foreground sm:block">
                     {formatDuration(track.durationSeconds)}
@@ -176,7 +201,13 @@ export function LibraryPageContent() {
                   href={`/albums/${album.id}`}
                   className="flex items-center gap-3 rounded-2xl border border-border bg-card p-3 hover:border-accent/50"
                 >
-                  <Artwork src={album.artworkUrl} seed={album.id} alt={`${album.title} cover art`} className="size-12 rounded-lg" />
+                  <Artwork
+                    src={album.artworkUrl}
+                    seed={album.id}
+                    alt=""
+                    decorative
+                    className="size-12 rounded-lg"
+                  />
                   <div className="min-w-0">
                     <p className="truncate text-sm font-medium">{album.title}</p>
                     <p className="truncate text-xs text-muted-foreground">{album.artistName}</p>
@@ -189,7 +220,9 @@ export function LibraryPageContent() {
 
       {tab === "artists" &&
         (data.followedArtists.length === 0 ? (
-          <p className="py-12 text-center text-sm text-muted-foreground">Not following any artists yet.</p>
+          <p className="py-12 text-center text-sm text-muted-foreground">
+            Not following any artists yet.
+          </p>
         ) : (
           <ul className="grid gap-3 sm:grid-cols-2">
             {data.followedArtists.map(({ artist }) => (
@@ -198,7 +231,14 @@ export function LibraryPageContent() {
                   href={`/artists/${artist.id}`}
                   className="flex items-center gap-3 rounded-2xl border border-border bg-card p-3 hover:border-accent/50"
                 >
-                  <Artwork src={artist.imageUrl} seed={artist.id} alt={`${artist.name} profile image`} className="size-12 rounded-full" round />
+                  <Artwork
+                    src={artist.imageUrl}
+                    seed={artist.id}
+                    alt=""
+                    decorative
+                    round
+                    className="size-12"
+                  />
                   <p className="truncate text-sm font-medium">{artist.name}</p>
                 </Link>
               </li>
@@ -221,7 +261,9 @@ export function LibraryPageContent() {
             </div>
           )}
           {data.recentlyPlayed.length === 0 ? (
-            <p className="py-12 text-center text-sm text-muted-foreground">No listening history yet.</p>
+            <p className="py-12 text-center text-sm text-muted-foreground">
+              No listening history yet.
+            </p>
           ) : (
             <ul className="space-y-1">
               {data.recentlyPlayed.map(({ track, playedAt }, index) => (
@@ -232,14 +274,27 @@ export function LibraryPageContent() {
                   <button
                     type="button"
                     aria-label={`Play ${track.title}`}
-                    onClick={() => playTrack(track, data.recentlyPlayed.map((t) => t.track))}
-                    className="size-10 shrink-0 overflow-hidden rounded-lg"
+                    onClick={() =>
+                      playTrack(
+                        track,
+                        data.recentlyPlayed.map((t) => t.track),
+                      )
+                    }
+                    className="shrink-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                   >
-                    <Artwork src={track.artworkUrl} seed={track.id} alt="" className="size-full" />
+                    <Artwork
+                      src={track.artworkUrl}
+                      seed={track.id}
+                      alt=""
+                      decorative
+                      className="size-10 rounded-lg"
+                    />
                   </button>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium">{track.title}</p>
-                    <p className="truncate text-xs text-muted-foreground">{track.artistNames.join(", ")}</p>
+                    <p className="truncate text-xs text-muted-foreground">
+                      {track.artistNames.join(", ")}
+                    </p>
                   </div>
                   <span className="shrink-0 text-xs text-muted-foreground">
                     {new Date(playedAt).toLocaleDateString()}

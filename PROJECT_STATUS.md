@@ -19,29 +19,28 @@ Don't move something to Completed without evidence.
 | Like / follow / save-album / add-to-queue / add-to-playlist actions on track, album, artist pages and track lists | Automated (15 component tests: optimistic update, rollback on failure, double-click guard, 409 handling, outside-click/Escape dismissal; plus API tests) |
 | Demo catalog: 19 fictional artists, 19 albums, 57 tracks across all 9 languages, generated cover art, seeded demo-listener history/likes/follows | Automated (10 integrity tests: unique slugs, valid enums, references resolve, every language covered, durations match audio) ; reseed itself Manual |
 | Similar tracks (explainable weighted scoring) | Automated |
+| **Global navigation**: desktop sidebar + mobile bottom tab bar (+ More menu), active-page state, user card, sign-out; hidden for signed-out visitors and on landing/login/signup | Automated (21 tests: visibility rules, links, `aria-current`, sign-out, More menu, Escape, player offset); **visual layout Unverified in a browser** |
 | Insights, profiles, sharing | Manual |
 | Security hardening (see below), health endpoint, prod env validation | Automated where marked |
-| Midnight Ember UI pass: shared tokens, home discovery, artwork-led lists, player/queue polish, responsive surfaces | Unverified (lint clean; affected component tests pass; browser review pending) |
 
 ## Current phase
 Finalization: audit → harden → test → document. Audit baseline: commit `f1819db`, 2026-10-12.
 
 ## In progress
-- UI polish: Midnight Ember tokens, fonts, home, shared track lists, search/discover/library/playlist rows, artwork surfaces, player and queue sizing are implemented. Browser review remains pending for insights, party and profile layouts.
-- Music architecture: catalog reads now go through the typed Prisma-backed `MusicService`; playlist persistence/authorization and user-owned library state remain separate boundaries.
+- UI polish: tokens, fonts, home, track list, track/album/artist pages and the app shell are done. The *page headers/layouts* of search, library, discover, insights, playlists, party, profile, login and landing still use the old styling (artwork and navigation are already in place on them).
 
 ## Remaining
-- Mobile bottom navigation + expandable mobile player (must coexist with the fixed player bar; needs browser verification).
-- Artwork now renders on home recommendations, track/album/artist pages, search/discover/library/playlist rows, shared track lists, and the player thumbnail. Gradient avatars remain in the profile and party room where the current data shape does not provide artwork.
+- Expandable full-screen mobile player (the mobile tab bar exists; the player bar itself is still the desktop layout on small screens).
+- Artwork now renders on track/album/artist pages, track lists, search, library, discover, playlist rows, home sidebar and the player bar. Still missing: playlist cover images on the playlists list/detail pages, party room.
 - Run and fix the Playwright E2E suite (specs exist; never executed by the author of this audit).
 - Loading/empty/error-state pass verified in a browser on every page (implemented in code, not visually verified).
-- Browser responsive/accessibility review is still pending for desktop, tablet, and mobile. Reduced-motion CSS and visible focus styles are implemented.
-- Music service browser/integration verification is pending against a running Postgres instance.
 
 ## Known Bugs
 - None known. (A party-queue add failure after removals/skips and a server crash on malformed socket payloads were found and fixed in this audit — see Last Audit.)
 
 ## Technical Debt
+- The sidebar stops above the player bar using a constant (`PLAYER_BAR_HEIGHT` in `components/shell/app-shell.tsx`); if the player bar's height changes, update it.
+- Light mode has tokens but has never been reviewed visually.
 - Demo audio clips are only 3, 6 and 9 seconds long, so demo tracks are listed with those true durations. Swap `PREVIEW_CLIPS` in `prisma/seed-data.ts` for longer royalty-free audio and rerun `npm run db:seed`.
 - `AddToPlaylistMenu` only lists playlists you own (the playlists API doesn't say which collaborative playlists you may edit).
 - Album/artist pages query Prisma directly; only tracks/search go through `MusicProvider`. **Deliberate:** adding provider DTOs for a provider that doesn't exist yet would be speculative. Revisit when integrating a real API.
@@ -72,10 +71,3 @@ nonce-based Content-Security-Policy, shared rate-limit/socket store for multi-in
   - *Security:* signup/login brute-force protection, `javascript:` playlist cover URLs rejected, discover filters validated (400 not 500), FK errors → 404, signup race → 409, security headers, production env validation, seed refuses known admin password in production, queue size cap.
   - *Lint:* 1 error (unescaped apostrophe).
 - **New:** `GET /api/health`, `docs/DEPLOYMENT.md`, API-layer + realtime test suites.
-
-## UI refinement validation
-- **Lint:** Passed after the Midnight Ember pass.
-- **Affected component tests:** Passed (15/15 in `tests/components/library-and-queue.test.tsx`).
-- **Typecheck/build:** Blocked by pre-existing Prisma `PlaylistActivityType` enum mismatches in collaborator routes (`COLLABORATOR_PERMISSION_CHANGED`, `COLLABORATOR_REMOVED`, `COLLABORATOR_JOINED`).
-- **Full unit suite:** Not clean in this environment: 81 passed, one signup rate-limit test timed out, and Vitest reported worker-start timeouts.
-- **Browser/E2E/responsive review:** Not run in this pass.

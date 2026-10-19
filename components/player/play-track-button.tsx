@@ -10,9 +10,11 @@ type PlayTrackButtonProps = {
   track: DiscoveryTrack;
   queue?: DiscoveryTrack[];
   label?: string;
+  /** Small round icon-only button for list rows; keep the labelled pill for primary calls to action. */
+  compact?: boolean;
 };
 
-export function PlayTrackButton({ track, queue, label = "Play" }: PlayTrackButtonProps) {
+export function PlayTrackButton({ track, queue, label = "Play", compact = false }: PlayTrackButtonProps) {
   const currentTrack = usePlayerStore((state) => state.currentTrack());
   const isPlaying = usePlayerStore((state) => state.isPlaying);
   const playTrack = usePlayerStore((state) => state.playTrack);
@@ -26,6 +28,23 @@ export function PlayTrackButton({ track, queue, label = "Play" }: PlayTrackButto
     } else {
       playTrack(track, queue);
     }
+  }
+
+  const playing = isCurrent && isPlaying;
+
+  if (compact) {
+    return (
+      <Button
+        type="button"
+        variant={playing ? "default" : "outline"}
+        size="icon"
+        className="size-9"
+        onClick={handleClick}
+        aria-label={playing ? `Pause ${track.title}` : `Play ${track.title}`}
+      >
+        {playing ? <Pause className="size-4" /> : <Play className="size-4" />}
+      </Button>
+    );
   }
 
   return (

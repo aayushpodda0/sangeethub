@@ -12,7 +12,7 @@ test("signs in with the demo account and reaches the home dashboard", async ({ p
   await page.getByRole("button", { name: /sign in|log in/i }).click();
 
   await expect(page).toHaveURL(/\/home/);
-  await expect(page.getByText(/welcome back/i)).toBeVisible();
+  await expect(page.getByText(/good to see you/i)).toBeVisible();
 });
 
 test("shows a validation error for an unknown account", async ({ page }) => {

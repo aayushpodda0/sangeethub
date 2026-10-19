@@ -11,7 +11,13 @@ import type { DiscoveryTrack } from "@/types/music";
  * Adds a track to the playback queue. If nothing is playing there's no visible queue yet,
  * so it starts the track instead and says so.
  */
-export function QueueButton({ track, variant = "icon" }: { track: DiscoveryTrack; variant?: "icon" | "button" }) {
+export function QueueButton({
+  track,
+  variant = "icon",
+}: {
+  track: DiscoveryTrack;
+  variant?: "icon" | "button";
+}) {
   const hasCurrent = usePlayerStore((state) => state.currentTrack() !== null);
   const addToQueue = usePlayerStore((state) => state.addToQueue);
   const playTrack = usePlayerStore((state) => state.playTrack);

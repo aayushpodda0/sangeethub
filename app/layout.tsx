@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Fraunces, Manrope } from "next/font/google";
 
 import { Providers } from "@/components/providers";
+import { getAuthSession } from "@/lib/auth/session";
 import "./globals.css";
 
 const manrope = Manrope({
@@ -20,7 +21,9 @@ export const metadata: Metadata = {
   description: "Music discovery and demo streaming with transparent recommendations.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const session = await getAuthSession();
+
   return (
     <html
       lang="en"
@@ -28,7 +31,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       suppressHydrationWarning
     >
       <body className="min-h-full bg-background text-foreground">
-        <Providers>{children}</Providers>
+        <Providers session={session}>{children}</Providers>
       </body>
     </html>
   );

@@ -108,9 +108,20 @@ describe("FavoriteToggle", () => {
 
   it("button variant shows the visible state text", async () => {
     fetchMock.mockResolvedValue({ ok: true });
-    wrap(<FavoriteToggle endpoint="/api/favorites/artists/a1" kind="follow" subject="Neon Chai" labels={{ on: "Following", off: "Follow" }} initial={false} />);
+    wrap(
+      <FavoriteToggle
+        endpoint="/api/favorites/artists/a1"
+        kind="follow"
+        subject="Neon Chai"
+        labels={{ on: "Following", off: "Follow" }}
+        initial={false}
+      />,
+    );
     await userEvent.click(screen.getByRole("button", { name: "Follow" }));
-    expect(await screen.findByRole("button", { name: "Following" })).toHaveAttribute("aria-pressed", "true");
+    expect(await screen.findByRole("button", { name: "Following" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
   });
 });
 
@@ -173,7 +184,8 @@ describe("AddToPlaylistMenu", () => {
     { id: "p1", name: "My Mix", isMine: true },
     { id: "p2", name: "Someone Else's", isMine: false },
   ];
-  const open = async () => userEvent.click(screen.getByRole("button", { name: /add to playlist/i }));
+  const open = async () =>
+    userEvent.click(screen.getByRole("button", { name: /add to playlist/i }));
 
   it("only offers playlists the user owns", async () => {
     fetchMock.mockResolvedValue({ ok: true, json: async () => ({ data: { playlists } }) });
@@ -185,7 +197,9 @@ describe("AddToPlaylistMenu", () => {
 
   it("adds the track, confirms, and closes the menu", async () => {
     fetchMock.mockImplementation(async (url: string, init?: { method?: string }) =>
-      init?.method === "POST" ? { ok: true, status: 201, json: async () => ({}) } : { ok: true, json: async () => ({ data: { playlists } }) },
+      init?.method === "POST"
+        ? { ok: true, status: 201, json: async () => ({}) }
+        : { ok: true, json: async () => ({ data: { playlists } }) },
     );
     wrap(<AddToPlaylistMenu trackId="t1" />);
     await open();
@@ -200,7 +214,9 @@ describe("AddToPlaylistMenu", () => {
 
   it("tells the user when the track is already in the playlist (409), without an error toast", async () => {
     fetchMock.mockImplementation(async (url: string, init?: { method?: string }) =>
-      init?.method === "POST" ? { ok: false, status: 409, json: async () => ({ error: { message: "dup" } }) } : { ok: true, json: async () => ({ data: { playlists } }) },
+      init?.method === "POST"
+        ? { ok: false, status: 409, json: async () => ({ error: { message: "dup" } }) }
+        : { ok: true, json: async () => ({ data: { playlists } }) },
     );
     wrap(<AddToPlaylistMenu trackId="t1" />);
     await open();

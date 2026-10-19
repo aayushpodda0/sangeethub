@@ -3,8 +3,8 @@
 import { GripVertical, Pause, Play, X } from "lucide-react";
 import Link from "next/link";
 
-import { Button } from "@/components/ui/button";
 import { Artwork } from "@/components/music/artwork";
+import { Button } from "@/components/ui/button";
 import { usePlayerStore } from "@/lib/player/store";
 import { cn, formatDuration } from "@/lib/utils";
 import type { DiscoveryTrack } from "@/types/music";
@@ -51,7 +51,7 @@ export function PlaylistTrackRow({
       onDragOver={canReorder ? onDragOver : undefined}
       onDrop={() => canReorder && onDrop(index)}
       className={cn(
-        "group flex items-center gap-3 rounded-2xl border border-transparent px-2 py-2.5 hover:border-border hover:bg-muted/70",
+        "flex items-center gap-3 rounded-xl px-2 py-2 hover:bg-muted",
         isCurrent && "bg-accent/10",
       )}
     >
@@ -64,17 +64,27 @@ export function PlaylistTrackRow({
       <Button
         variant="ghost"
         size="icon"
-        aria-label={isCurrent && isPlaying ? `Pause ${entry.track.title}` : `Play ${entry.track.title}`}
+        aria-label={
+          isCurrent && isPlaying ? `Pause ${entry.track.title}` : `Play ${entry.track.title}`
+        }
         onClick={() => (isCurrent ? togglePlay() : playTrack(entry.track, allTracks))}
         className="shrink-0"
       >
         {isCurrent && isPlaying ? <Pause className="size-4" /> : <Play className="size-4" />}
       </Button>
 
-      <Artwork src={entry.track.artworkUrl} seed={entry.track.id} alt={`${entry.track.title} cover art`} className="size-10 rounded-lg" />
+      <Artwork
+        src={entry.track.artworkUrl}
+        seed={entry.track.id}
+        alt=""
+        decorative
+        className="size-10 rounded-lg"
+      />
 
       <div className="min-w-0 flex-1">
-        <p className={cn("truncate text-sm font-medium", isCurrent && "text-accent")}>{entry.track.title}</p>
+        <p className={cn("truncate text-sm font-medium", isCurrent && "text-accent")}>
+          {entry.track.title}
+        </p>
         <p className="truncate text-xs text-muted-foreground">
           {entry.track.artistNames.join(", ")} • added by{" "}
           <Link href={`/profile/${entry.addedBy.username}`} className="hover:underline">
