@@ -13,12 +13,13 @@ const buttonVariants = cva(
           "rounded-full bg-[image:var(--gradient-sunset)] text-accent-foreground shadow-[0_6px_20px_-6px_rgba(242,84,45,0.55)] hover:shadow-[0_8px_24px_-6px_rgba(242,84,45,0.7)] hover:brightness-105 focus-visible:ring-accent",
         secondary:
           "rounded-xl bg-secondary text-secondary-foreground hover:opacity-90 focus-visible:ring-secondary",
-        ghost: "rounded-lg hover:bg-muted focus-visible:ring-muted-foreground",
+        ghost: "rounded-lg hover:bg-muted/80 focus-visible:ring-muted-foreground",
         outline:
-          "rounded-lg border border-border bg-transparent hover:bg-muted focus-visible:ring-muted-foreground",
+          "rounded-xl border border-border bg-transparent hover:border-accent/50 hover:bg-muted focus-visible:ring-muted-foreground",
+        subtle: "rounded-xl bg-muted/70 text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:ring-muted-foreground",
       },
       size: {
-        default: "h-10 px-4 py-2",
+        default: "h-11 px-4 py-2",
         sm: "h-9 px-3",
         lg: "h-12 px-7 text-base",
         icon: "size-10 rounded-full",

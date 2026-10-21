@@ -64,10 +64,10 @@ function PlaylistCard({
   });
 
   return (
-    <div className="flex flex-col gap-2 rounded-2xl border border-border bg-card p-4 transition hover:border-accent/50">
+    <div className="surface-card flex flex-col gap-3 p-4 transition hover:-translate-y-0.5 hover:border-accent/50">
       <Link href={`/playlists/${playlist.id}`} className="flex flex-col gap-2">
         <div className="flex items-start justify-between gap-2">
-          <p className="font-medium">{playlist.name}</p>
+          <p className="font-display text-lg font-medium">{playlist.name}</p>
           <div className="flex shrink-0 items-center gap-1.5 text-muted-foreground">
             {!playlist.isPublic && <Lock className="size-3.5" aria-label="Private" />}
             {playlist.isCollaborative && <Users className="size-3.5" aria-label="Collaborative" />}
@@ -293,7 +293,7 @@ export function PlaylistsPageContent() {
   const unsorted = grouped.get(null) ?? [];
 
   return (
-    <main className="mx-auto min-h-screen w-full max-w-4xl px-4 py-6 sm:px-6">
+    <main className="page-shell mx-auto min-h-screen w-full max-w-5xl px-4 sm:px-6">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-2xl font-semibold tracking-tight">Playlists</h1>
         <div className="flex gap-2">

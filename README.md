@@ -44,11 +44,12 @@ Auth.js · Zustand (player state) · TanStack Query (server state) · Socket.IO
 - `app/api/` — REST-ish route handlers. Every route validates input with Zod and
   returns a consistent `{ data }` / `{ error: { code, message } }` shape
   (`lib/api/response.ts`).
-- `lib/music/provider.ts` — the `MusicProvider` interface. `lib/music/demo-provider.ts`
-  is the only implementation today; swap in a real API later without touching callers
-  that go through it (currently: search). Track/album/artist detail pages query Prisma
-  directly rather than through the provider — a known inconsistency, see
-  [Future improvements](#future-improvements).
+- `lib/music/provider.ts` — the typed `MusicProvider` contract. `lib/music/service.ts`
+  is the Prisma-backed implementation used by catalog callers; `demo-provider.ts` is a
+  backwards-compatible test adapter. Search, track/album/artist pages, discovery,
+  recommendations, library hydration, history validation, playlist track validation,
+  and party track validation use this boundary. Prisma catalog queries should remain
+  inside the service.
 - `lib/player/` — Zustand store (`store.ts`) + the hook that owns the real
   `<audio>` element (`use-audio-engine.ts`). Pure queue/shuffle/repeat logic lives in
   the store and is unit-tested without touching the DOM.
@@ -56,8 +57,9 @@ Auth.js · Zustand (player state) · TanStack Query (server state) · Socket.IO
   (can-view/can-add/can-remove); `authorization.ts` loads data and applies those rules;
   `serializers.ts` shapes API responses.
 - `lib/recommendations/` — `reasons.ts` is pure scoring/explanation logic (unit-tested);
-  `deterministic-service.ts` is the thin DB-querying `RecommendationService`
-  implementation; `context.ts` builds a user's taste profile from their history.
+  `deterministic-service.ts` keeps user-specific exclusions and scoring separate from
+  catalog candidate reads, which are delegated to `MusicService`; `context.ts` builds
+  a user's taste profile from their history.
 - `lib/party/` — `playback-state.ts` is the pure elapsed-time calculation (unit-tested);
   `socket-handlers.ts` is the actual Socket.IO event wiring; `types.ts` is the shared
   client/server event contract.
@@ -184,8 +186,9 @@ order is driven by vote score, not insertion order.
   deployment blockers.
 - **`docs/DEPLOYMENT.md`** - hosting requirements (long-running Node + WebSocket + Postgres; not serverless),
   env vars, migrations, reverse-proxy config, health check.
-- Notable gaps today: no committed Prisma migrations yet (blocks `migrate deploy`), no mobile bottom nav,
-  no CSP header, album/artist pages query Prisma directly instead of via `MusicProvider`.
+- Notable gaps today: no committed Prisma migrations yet (blocks `migrate deploy`), no CSP header,
+  playlist/profile data loaders still combine user/playlist persistence reads with catalog-shaped
+  relations and should be split further if the provider must be enforced at every domain boundary.
 
 ## Legal note
 

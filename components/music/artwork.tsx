@@ -12,7 +12,7 @@ type ArtworkProps = {
   decorative?: boolean;
 };
 
-/** Cover art / artist image. Falls back to a generated gradient (also shows if the image fails to load). */
+/** Cover art / artist image. Falls back to deterministic CSS artwork without external media. */
 export function Artwork({
   src,
   seed,
@@ -28,11 +28,13 @@ export function Artwork({
     <div
       {...(decorative ? { "aria-hidden": true } : { role: "img", "aria-label": alt })}
       className={cn(
-        "shrink-0 bg-cover bg-center",
+        "relative shrink-0 overflow-hidden bg-cover bg-center",
         round ? "rounded-full" : "rounded-xl",
         className,
       )}
       style={{ backgroundImage: `${image}${gradient}` }}
-    />
+    >
+      <span className="artwork-texture pointer-events-none absolute inset-0" aria-hidden />
+    </div>
   );
 }

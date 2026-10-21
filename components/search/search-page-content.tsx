@@ -65,10 +65,16 @@ export function SearchPageContent() {
   const hasQuery = debouncedQuery.trim().length > 0;
 
   return (
-    <main className="mx-auto min-h-screen w-full max-w-3xl px-4 py-6 sm:px-6">
-      <h1 className="mb-4 text-2xl font-semibold tracking-tight">Search</h1>
+    <main className="page-shell mx-auto min-h-screen w-full max-w-4xl px-4 sm:px-6">
+      <header className="mb-7">
+        <p className="eyebrow">SangeetHub catalog</p>
+        <h1 className="font-display mt-2 text-3xl font-medium tracking-tight sm:text-4xl">Search music</h1>
+        <p className="mt-2 max-w-xl text-sm text-muted-foreground">
+          Find tracks, artists, albums, and regional sounds across the catalog.
+        </p>
+      </header>
 
-      <div className="relative mb-6">
+      <div className="surface-card relative mb-7 p-2">
         <SearchIcon
           className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
           aria-hidden
@@ -84,7 +90,7 @@ export function SearchPageContent() {
       </div>
 
       {!hasQuery && (
-        <p className="py-12 text-center text-sm text-muted-foreground">
+        <p className="surface-card py-14 text-center text-sm text-muted-foreground">
           Start typing to search the SangeetHub catalog.
         </p>
       )}
@@ -92,19 +98,19 @@ export function SearchPageContent() {
       {hasQuery && isFetching && (
         <ul className="space-y-2" aria-label="Loading results">
           {Array.from({ length: 5 }).map((_, i) => (
-            <li key={i} className="h-14 animate-pulse rounded-xl bg-muted" />
+            <li key={i} className="skeleton-shimmer h-16 rounded-xl" />
           ))}
         </ul>
       )}
 
       {hasQuery && isError && (
-        <p className="py-12 text-center text-sm text-destructive">
+        <p className="surface-card py-14 text-center text-sm text-destructive">
           Something went wrong while searching. Please try again.
         </p>
       )}
 
       {hasQuery && !isFetching && !isError && tracks && tracks.length === 0 && (
-        <p className="py-12 text-center text-sm text-muted-foreground">
+        <p className="surface-card py-14 text-center text-sm text-muted-foreground">
           No results for &ldquo;{debouncedQuery}&rdquo;. Try a different title, artist, or genre.
         </p>
       )}

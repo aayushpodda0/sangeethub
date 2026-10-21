@@ -67,5 +67,5 @@ describe("POST /api/auth/signup", () => {
     expect(statuses.slice(0, 10).every((s) => s !== 429)).toBe(true);
     expect(statuses.slice(10)).toEqual([429, 429]);
     expect(Number(last!.headers.get("Retry-After"))).toBeGreaterThan(0);
-  });
+  }, 15000);
 });

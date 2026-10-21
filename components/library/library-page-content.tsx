@@ -80,11 +80,11 @@ export function LibraryPageContent() {
 
   if (isLoading) {
     return (
-      <main className="mx-auto min-h-screen w-full max-w-3xl px-4 py-6 sm:px-6">
-        <div className="h-8 w-1/3 animate-pulse rounded bg-muted" />
+      <main className="page-shell mx-auto min-h-screen w-full max-w-4xl px-4 sm:px-6">
+        <div className="skeleton-shimmer h-10 w-1/3 rounded-xl" />
         <div className="mt-4 space-y-2">
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="h-14 animate-pulse rounded-xl bg-muted" />
+            <div key={i} className="skeleton-shimmer h-16 rounded-xl" />
           ))}
         </div>
       </main>
@@ -93,7 +93,7 @@ export function LibraryPageContent() {
 
   if (isError || !data) {
     return (
-      <main className="mx-auto min-h-screen w-full max-w-3xl px-4 py-6 sm:px-6">
+      <main className="page-shell mx-auto min-h-screen w-full max-w-4xl px-4 sm:px-6">
         <p className="text-sm text-destructive">
           {error?.message ?? "Couldn't load your library."}
         </p>
@@ -103,9 +103,13 @@ export function LibraryPageContent() {
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-3xl px-4 py-6 sm:px-6">
-      <h1 className="mb-4 text-2xl font-semibold tracking-tight">Your library</h1>
+      <header className="mb-7">
+        <p className="eyebrow">Your collection</p>
+        <h1 className="font-display mt-2 text-3xl font-medium tracking-tight sm:text-4xl">Your library</h1>
+        <p className="mt-2 text-sm text-muted-foreground">Keep the music you return to close.</p>
+      </header>
 
-      <div className="mb-6 flex flex-wrap gap-2" role="tablist" aria-label="Library sections">
+      <div className="mb-7 flex flex-wrap gap-2" role="tablist" aria-label="Library sections">
         {TABS.map(({ id, label, icon: Icon }) => (
           <button
             key={id}
@@ -113,7 +117,7 @@ export function LibraryPageContent() {
             aria-selected={tab === id}
             onClick={() => setTab(id)}
             className={cn(
-              "flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-sm transition",
+              "flex min-h-10 items-center gap-1.5 rounded-full border border-border px-3.5 py-2 text-sm transition",
               tab === id
                 ? "border-accent bg-accent/10 text-accent"
                 : "text-muted-foreground hover:bg-muted",

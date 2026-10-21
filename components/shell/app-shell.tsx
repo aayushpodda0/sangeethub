@@ -207,7 +207,7 @@ export function AppShell({ children }: PropsWithChildren) {
     return <>{children}</>;
   }
 
-  const username = session.user.username;
+  const username = session.user.username ?? undefined;
   const displayName = session.user.name ?? username ?? "You";
 
   return (

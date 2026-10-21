@@ -24,14 +24,19 @@ Don't move something to Completed without evidence.
 | Security hardening (see below), health endpoint, prod env validation | Automated where marked |
 
 ## Current phase
-Finalization: audit → harden → test → document. Audit baseline: commit `f1819db`, 2026-10-12.
+Phase 2 complete; Phase 3 UI refinement in progress. API boundaries and authorization are covered by
+deterministic Vitest tests. UI changes are code-verified below; browser visual review remains manual.
 
 ## In progress
-- UI polish: tokens, fonts, home, track list, track/album/artist pages and the app shell are done. The *page headers/layouts* of search, library, discover, insights, playlists, party, profile, login and landing still use the old styling (artwork and navigation are already in place on them).
+- UI polish: shared tokens, focus states, artwork fallback treatment, search, library, playlists, home,
+  party, queue, and player surfaces have been refined. Discover, insights, profile, and auth pages
+  still need the same page-header treatment.
 
 ## Remaining
 - Expandable full-screen mobile player (the mobile tab bar exists; the player bar itself is still the desktop layout on small screens).
-- Artwork now renders on track/album/artist pages, track lists, search, library, discover, playlist rows, home sidebar and the player bar. Still missing: playlist cover images on the playlists list/detail pages, party room.
+- Artwork now renders on track/album/artist pages, track lists, search, library, discover, playlist rows,
+  home sidebar, and the player bar. Playlist list/detail cover treatment and party current-track artwork
+  remain visual follow-ups.
 - Run and fix the Playwright E2E suite (specs exist; never executed by the author of this audit).
 - Loading/empty/error-state pass verified in a browser on every page (implemented in code, not visually verified).
 
@@ -43,13 +48,15 @@ Finalization: audit → harden → test → document. Audit baseline: commit `f1
 - Light mode has tokens but has never been reviewed visually.
 - Demo audio clips are only 3, 6 and 9 seconds long, so demo tracks are listed with those true durations. Swap `PREVIEW_CLIPS` in `prisma/seed-data.ts` for longer royalty-free audio and rerun `npm run db:seed`.
 - `AddToPlaylistMenu` only lists playlists you own (the playlists API doesn't say which collaborative playlists you may edit).
-- Album/artist pages query Prisma directly; only tracks/search go through `MusicProvider`. **Deliberate:** adding provider DTOs for a provider that doesn't exist yet would be speculative. Revisit when integrating a real API.
+- Playlist authorization still loads playlist track relations alongside permission data; separate catalog
+  hydration is a future service-boundary cleanup.
 - API tests mock Prisma: they prove handler/authorization logic, not SQL, constraints, or cascades. A real-Postgres integration suite (CI service container) would close this gap.
 - Rate limiting and Socket.IO rooms are in-process → single instance only.
 - `authorize()` skips the bcrypt comparison when the email doesn't exist (minor timing side-channel for account enumeration).
 - Party rooms are never expired/cleaned up; if the host disconnects, host controls stay unavailable until they return.
 - Discover UI duplicates the filter constants now centralized in `lib/music/taxonomy.ts`.
 - Private playlists return 403 rather than 404 (reveals that an unguessable id exists).
+- UI has not yet had a full desktop/tablet/mobile browser review after the latest refinement pass.
 
 ## Deployment Blockers
 1. **No committed `prisma/migrations`** → `prisma migrate deploy` has nothing to run. Baseline once (see `docs/DEPLOYMENT.md`) and commit it. Include the new `COLLABORATOR_*` activity enum values.

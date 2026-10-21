@@ -17,6 +17,7 @@ import { GET as library } from "@/app/api/library/route";
 import { GET as insights } from "@/app/api/insights/route";
 import { GET as recommendations } from "@/app/api/recommendations/route";
 import { POST as createRoom } from "@/app/api/party/route";
+import { GET as getRoom } from "@/app/api/party/[roomCode]/route";
 import { GET as search } from "@/app/api/search/route";
 
 const as = (userId: string | null) =>
@@ -114,6 +115,54 @@ describe("POST /api/party validation", () => {
     const data = prismaMock.partyRoom.create.mock.calls[0]![0].data;
     expect(data.hostId).toBe("u1");
     expect(data.roomCode).toMatch(/^[A-HJ-NP-Z2-9]{6}$/);
+  });
+});
+
+describe("GET /api/party/:roomCode", () => {
+  it("rejects anonymous room lookups", async () => {
+    as(null);
+    const res = await getRoom(jsonRequest("/", "GET"), routeParams({ roomCode: "ABC123" }));
+    expect(res.status).toBe(401);
+    expect(prismaMock.partyRoom.findUnique.mock.calls).toHaveLength(0);
+  });
+
+  it("returns 404 for inactive or missing rooms", async () => {
+    as("u1");
+    prismaMock.partyRoom.findUnique.mockResolvedValueOnce(null);
+    expect((await getRoom(jsonRequest("/", "GET"), routeParams({ roomCode: "ABC123" }))).status).toBe(404);
+
+    prismaMock.partyRoom.findUnique.mockResolvedValueOnce({
+      roomCode: "ABC123",
+      name: "Friday",
+      hostId: "u1",
+      isActive: false,
+      host: { name: "Host", username: "host" },
+    });
+    expect((await getRoom(jsonRequest("/", "GET"), routeParams({ roomCode: "ABC123" }))).status).toBe(404);
+  });
+
+  it("exposes room identity without leaking unrelated persistence fields", async () => {
+    as("u1");
+    prismaMock.partyRoom.findUnique.mockResolvedValue({
+      id: "internal-id",
+      roomCode: "ABC123",
+      name: "Friday",
+      hostId: "u1",
+      isActive: true,
+      host: { name: null, username: "host_user" },
+      participants: [{ userId: "private" }],
+    });
+
+    const res = await getRoom(jsonRequest("/", "GET"), routeParams({ roomCode: "ABC123" }));
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({
+      data: {
+        roomCode: "ABC123",
+        name: "Friday",
+        hostName: "host_user",
+        isHost: true,
+      },
+    });
   });
 });
 

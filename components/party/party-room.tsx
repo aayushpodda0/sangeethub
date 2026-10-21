@@ -116,15 +116,16 @@ export function PartyRoom({ roomCode, currentUserId }: { roomCode: string; curre
   }
 
   return (
-    <main className="mx-auto min-h-screen w-full max-w-3xl px-4 py-6 sm:px-6">
+    <main className="page-shell mx-auto min-h-screen w-full max-w-5xl px-4 sm:px-6">
       <audio ref={audioRef} src={currentTrack?.previewUrl} preload="auto" />
 
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">{roomName || "Party room"}</h1>
+          <p className="eyebrow">Listening together</p>
+          <h1 className="font-display mt-2 text-3xl font-medium tracking-tight">{roomName || "Party room"}</h1>
           <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
             <span>
-              Code: <span className="font-mono tracking-widest text-foreground">{roomCode}</span>
+              Room code: <span className="rounded bg-muted px-1.5 py-0.5 font-mono font-semibold tracking-widest text-foreground">{roomCode}</span>
             </span>
             {status !== "connected" && (
               <span className="flex items-center gap-1 text-destructive">
@@ -140,7 +141,7 @@ export function PartyRoom({ roomCode, currentUserId }: { roomCode: string; curre
         </Button>
       </div>
 
-      <section className="mb-6 rounded-2xl border border-border bg-card p-5">
+      <section className="surface-card mb-6 p-5 sm:p-6">
         {currentTrack ? (
           <>
             <p className="text-lg font-medium">{currentTrack.title}</p>
@@ -195,7 +196,7 @@ export function PartyRoom({ roomCode, currentUserId }: { roomCode: string; curre
 
       <div className="grid gap-6 sm:grid-cols-[2fr_1fr]">
         <section>
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">Queue</h2>
+          <h2 className="eyebrow mb-3">Shared queue</h2>
 
           <div className="relative mb-4">
             <Input

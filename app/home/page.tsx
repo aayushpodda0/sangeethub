@@ -8,7 +8,7 @@ import { TrackList } from "@/components/music/track-list";
 import { prisma } from "@/lib/db/prisma";
 import { getAuthSession } from "@/lib/auth/session";
 import { getLikedTrackIds } from "@/lib/library/state";
-import { toDiscoveryTrack } from "@/lib/music/serializers";
+import { musicService } from "@/lib/music/service";
 import { buildRecommendationContext } from "@/lib/recommendations/context";
 import { DeterministicRecommendationService } from "@/lib/recommendations/deterministic-service";
 
@@ -25,15 +25,7 @@ export default async function DashboardPage() {
   }
 
   const [trending, playlists, artists, albums, recommendationContext] = await Promise.all([
-    prisma.track.findMany({
-      include: {
-        album: true,
-        artists: { include: { artist: true } },
-        genres: { include: { genre: true } },
-      },
-      orderBy: [{ popularity: "desc" }, { releaseDate: "desc" }],
-      take: 8,
-    }),
+    musicService.getTrendingTracks(8),
     prisma.playlist.findMany({
       where: {
         OR: [{ ownerId: session.user.id }, { isPublic: true }],
@@ -44,28 +36,15 @@ export default async function DashboardPage() {
       orderBy: [{ updatedAt: "desc" }],
       take: 6,
     }),
-    prisma.artist.findMany({
-      orderBy: [{ popularity: "desc" }],
-      take: 6,
-    }),
-    prisma.album.findMany({
-      include: { primaryArtist: true },
-      orderBy: [{ releaseDate: "desc" }],
-      take: 6,
-    }),
+    musicService.getFeaturedArtists(6),
+    musicService.getNewReleases(6),
     buildRecommendationContext(session.user.id),
   ]);
 
   const recommendationResults =
     await recommendationService.getTrackRecommendations(recommendationContext);
   const recommendedTrackIds = recommendationResults.slice(0, 4).map((r) => r.trackId);
-  const recommendedTracks =
-    recommendedTrackIds.length > 0
-      ? await prisma.track.findMany({
-          where: { id: { in: recommendedTrackIds } },
-          select: { id: true, title: true },
-        })
-      : [];
+  const recommendedTracks = await musicService.getTracksByIds(recommendedTrackIds);
   const trackTitleById = new Map(recommendedTracks.map((t) => [t.id, t.title]));
 
   const recommendationCards = recommendationResults.slice(0, 4).map((r) => ({
@@ -74,7 +53,7 @@ export default async function DashboardPage() {
     ...r.explanation,
   }));
 
-  const trendingTracks = trending.map(toDiscoveryTrack);
+  const trendingTracks = trending;
   const likedIds = await getLikedTrackIds(
     session.user.id,
     trendingTracks.map((t) => t.id),
@@ -84,14 +63,14 @@ export default async function DashboardPage() {
   return (
     <main className="mx-auto min-h-screen w-full max-w-7xl px-4 pb-6 sm:px-6">
       {/* Hero */}
-      <header className="relative mb-10 overflow-hidden rounded-3xl border border-border">
+      <header className="relative mb-10 overflow-hidden rounded-[2rem] border border-border shadow-[var(--shadow-surface)]">
         <div
           className="absolute inset-0 opacity-90"
           style={{ backgroundImage: "var(--gradient-sunset)" }}
           aria-hidden
         />
         <div className="absolute inset-0 bg-black/25" aria-hidden />
-        <div className="relative flex flex-wrap items-end justify-between gap-6 px-6 py-10 sm:px-10 sm:py-14">
+        <div className="relative flex flex-wrap items-end justify-between gap-6 px-6 py-8 sm:px-10 sm:py-11">
           <div>
             <p className="text-sm font-medium text-accent-foreground">Good to see you</p>
             <h1 className="font-display mt-1 text-4xl font-medium tracking-tight text-accent-foreground sm:text-5xl">
@@ -119,7 +98,7 @@ export default async function DashboardPage() {
               <Link
                 key={card.trackId}
                 href={`/tracks/${card.trackId}`}
-                className="group rounded-xl border-l-2 border-accent bg-card p-4 transition hover:bg-muted"
+                className="group surface-card rounded-xl border-l-2 border-accent p-4 transition hover:-translate-y-0.5 hover:bg-muted"
               >
                 <p className="truncate text-sm font-medium group-hover:text-accent">
                   {card.trackTitle}

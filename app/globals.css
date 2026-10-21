@@ -1,13 +1,13 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0f0d0c;
-  --foreground: #f5eee6;
-  --muted: #211a17;
-  --muted-foreground: #ad9a8b;
-  --card: #171210;
-  --border: #342722;
-  --input: #1d1613;
+  --background: #100e0d;
+  --foreground: #f6efe7;
+  --muted: #241c18;
+  --muted-foreground: #b7a598;
+  --card: #191411;
+  --border: #3a2b24;
+  --input: #211914;
   --accent: #e9783f;
   --accent-foreground: #fff7ef;
   --secondary: #d2a15f;
@@ -17,6 +17,10 @@
   --gradient-sunset: linear-gradient(135deg, #9e4025 0%, #d28a43 100%);
   --surface-elevated: #1d1714;
   --shadow-surface: 0 18px 50px -28px rgba(0, 0, 0, 0.9);
+  --radius-sm: 0.625rem;
+  --radius-md: 0.875rem;
+  --radius-lg: 1.25rem;
+  --radius-xl: 1.75rem;
 }
 
 @theme inline {
@@ -60,10 +64,68 @@ body {
   color: var(--foreground);
   font-family: var(--font-manrope), Arial, Helvetica, sans-serif;
   background-image: radial-gradient(circle at 82% -10%, rgba(176, 77, 37, 0.12), transparent 28rem);
+  line-height: 1.5;
 }
 
 * {
   border-color: var(--border);
+}
+
+button,
+a,
+input,
+textarea,
+select {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.page-shell {
+  padding-block: 1.5rem 3rem;
+}
+
+.surface-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--card);
+  box-shadow: var(--shadow-surface);
+}
+
+.eyebrow {
+  color: var(--muted-foreground);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(100deg, var(--muted) 30%, var(--surface-elevated) 45%, var(--muted) 60%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.6s ease-in-out infinite;
+}
+
+.artwork-texture {
+  background-image:
+    radial-gradient(circle at 18% 20%, rgba(255, 255, 255, 0.2) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 74% 76%, rgba(0, 0, 0, 0.24) 0 1px, transparent 1.5px);
+  background-size: 11px 11px, 17px 17px;
+  mix-blend-mode: soft-light;
+  opacity: 0.65;
+}
+
+@keyframes skeleton-shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
 }
 
 .font-display {
