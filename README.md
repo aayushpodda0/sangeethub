@@ -13,7 +13,9 @@ catalog can later be swapped for a real licensed music API without touching the 
 - **Search** — debounced, matches title/artist/album/genre
 - **Player** — persistent across navigation, queue, shuffle, repeat, keyboard shortcuts
   (space = play/pause, arrows = seek/skip)
-- **Playlists** — create/rename/delete, reorder tracks, folders, public/private
+- **Playlists** — create/rename/delete, reorder tracks, folders, public/private, and
+  smart playlists with validated AND rules for genre, language, mood, activity, artist,
+  liked status, recent listening, and release date
 - **Collaborative playlists** — invite links with Accept/Decline, per-collaborator
   permissions (contributor vs. moderator), activity feed
 - **Library** — liked tracks, saved albums, followed artists, listening history
@@ -28,6 +30,8 @@ catalog can later be swapped for a real licensed music API without touching the 
   host playback control, synced playback for guests — see
   [Party rooms](#party-rooms) below
 - **Profiles** — public profile pages with playlists and derived taste tags
+- **Onboarding preferences** — select languages, genres, and moods to tune recommendations, skip setup,
+  and update taste preferences from your profile
 - **Share links** — native share sheet / clipboard copy for tracks, albums, artists,
   playlists
 
@@ -54,12 +58,15 @@ Auth.js · Zustand (player state) · TanStack Query (server state) · Socket.IO
   `<audio>` element (`use-audio-engine.ts`). Pure queue/shuffle/repeat logic lives in
   the store and is unit-tested without touching the DOM.
 - `lib/playlists/` — `rules.ts` holds pure, DB-free authorization logic
-  (can-view/can-add/can-remove); `authorization.ts` loads data and applies those rules;
-  `serializers.ts` shapes API responses.
+  (can-view/can-add/can-remove); `smart-playlists.ts` evaluates owner-scoped rules and
+  refreshes materialized smart playlist tracks; `authorization.ts` loads data and applies
+  access rules; `serializers.ts` shapes API responses.
 - `lib/recommendations/` — `reasons.ts` is pure scoring/explanation logic (unit-tested);
   `deterministic-service.ts` keeps user-specific exclusions and scoring separate from
   catalog candidate reads, which are delegated to `MusicService`; `context.ts` builds
-  a user's taste profile from their history.
+  a user's taste profile from explicit preferences and listening history.
+- `lib/preferences/` — validated, user-scoped music preference persistence used by onboarding,
+  profile editing, and recommendation context.
 - `lib/party/` — `playback-state.ts` is the pure elapsed-time calculation (unit-tested);
   `socket-handlers.ts` is the actual Socket.IO event wiring; `types.ts` is the shared
   client/server event contract.
@@ -186,7 +193,8 @@ order is driven by vote score, not insertion order.
   deployment blockers.
 - **`docs/DEPLOYMENT.md`** - hosting requirements (long-running Node + WebSocket + Postgres; not serverless),
   env vars, migrations, reverse-proxy config, health check.
-- Notable gaps today: no committed Prisma migrations yet (blocks `migrate deploy`), no CSP header,
+- Notable gaps today: the older pre-preferences schema still needs a one-time migration baseline
+  before a clean production `migrate deploy`, no CSP header,
   playlist/profile data loaders still combine user/playlist persistence reads with catalog-shaped
   relations and should be split further if the provider must be enforced at every domain boundary.
 

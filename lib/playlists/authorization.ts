@@ -66,7 +66,8 @@ export async function getPlaylistAccess(
 
   const isCollaborator = collaboration !== null;
   const canView = playlistRules.canView(playlist.isPublic, isOwner, isCollaborator);
-  const canAddTrack = playlistRules.canAddTrack(isOwner, playlist.isCollaborative, isCollaborator);
+  const canAddTrack =
+    !playlist.isSmart && playlistRules.canAddTrack(isOwner, playlist.isCollaborative, isCollaborator);
 
   return {
     playlist,

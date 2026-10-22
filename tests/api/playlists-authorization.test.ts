@@ -78,6 +78,36 @@ describe("GET /playlists/:id visibility", () => {
   });
 });
 
+describe("POST /playlists smart playlist creation", () => {
+  it("persists validated rules and marks the playlist as smart", async () => {
+    as("owner");
+    prismaMock.playlist.findUnique.mockResolvedValue(null);
+    prismaMock.playlist.create.mockResolvedValue({ id: "p-smart", slug: "focus-mix" });
+
+    const res = await createPlaylist(
+      jsonRequest("/api/playlists", "POST", {
+        name: "Focus mix",
+        isSmart: true,
+        smartRules: [{ field: "mood", value: "FOCUS" }],
+      }),
+    );
+
+    expect(res.status).toBe(201);
+    expect(prismaMock.playlist.create.mock.calls[0]![0].data).toMatchObject({
+      ownerId: "owner",
+      isSmart: true,
+      smartRules: [{ field: "mood", value: "FOCUS" }],
+    });
+  });
+
+  it("rejects a smart playlist without rules", async () => {
+    as("owner");
+    const res = await createPlaylist(jsonRequest("/api/playlists", "POST", { name: "No rules", isSmart: true }));
+    expect(res.status).toBe(400);
+    expect(prismaMock.playlist.create.mock.calls).toHaveLength(0);
+  });
+});
+
 describe("playlist settings: owner only", () => {
   it("PATCH 403s a collaborator and a stranger, and never writes", async () => {
     prismaMock.playlist.findUnique.mockResolvedValue(playlistFixture({ collaborations: [collaborator("c1", "MODERATOR", true)] }));
@@ -133,6 +163,21 @@ describe("POST /playlists/:id/tracks", () => {
     as("stranger");
     prismaMock.playlist.findUnique.mockResolvedValue(playlistFixture({ isPublic: true }));
     expect((await add()).status).toBe(403);
+  });
+
+  it("rejects manual edits to smart playlists", async () => {
+    as("owner");
+    prismaMock.playlist.findUnique.mockResolvedValue(
+      playlistFixture({
+        isSmart: true,
+        smartRules: [{ field: "mood", value: "FOCUS" }],
+        isCollaborative: false,
+      }),
+    );
+    const res = await add();
+    expect(res.status).toBe(409);
+    expect((await body(res)).error.code).toBe("SMART_PLAYLIST_MANAGED");
+    expect(prismaMock.playlistTrack.create.mock.calls).toHaveLength(0);
   });
 
   it("403s a collaborator while collaboration is switched OFF", async () => {

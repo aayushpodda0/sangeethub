@@ -20,6 +20,9 @@ export async function POST(request: Request, { params }: RouteParams) {
     return apiError(404, "NOT_FOUND", "Playlist not found.");
   }
   if (!access.canAddTrack) {
+    if (access.playlist.isSmart) {
+      return apiError(409, "SMART_PLAYLIST_MANAGED", "Smart playlists update from their rules and cannot be edited manually.");
+    }
     return apiError(403, "FORBIDDEN", "You don't have permission to add tracks to this playlist.");
   }
 

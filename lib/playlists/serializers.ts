@@ -1,5 +1,6 @@
 import { toDiscoveryTrack } from "@/lib/music/serializers";
 import type { PlaylistAccess } from "@/lib/playlists/authorization";
+import { smartRulesSchema } from "@/lib/playlists/schemas";
 
 export function serializePlaylist(access: PlaylistAccess, viewerId: string | undefined) {
   const { playlist } = access;
@@ -12,6 +13,8 @@ export function serializePlaylist(access: PlaylistAccess, viewerId: string | und
     coverUrl: playlist.coverUrl,
     isPublic: playlist.isPublic,
     isCollaborative: playlist.isCollaborative,
+    isSmart: playlist.isSmart,
+    smartRules: playlist.isSmart ? smartRulesSchema.parse(playlist.smartRules) : null,
     folder: playlist.folder,
     createdAt: playlist.createdAt,
     updatedAt: playlist.updatedAt,

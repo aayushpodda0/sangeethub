@@ -105,8 +105,24 @@ model User {
   partyParticipations PartyParticipant[]
   partyQueueItemsAdded PartyQueueItem[]
   queueVotes          QueueVote[]
+  musicPreferences    UserMusicPreferences?
 
   @@index([createdAt])
+}
+
+model UserMusicPreferences {
+  id                    String       @id @default(cuid())
+  userId                String       @unique
+  languages             LanguageCode[]
+  genres                String[]
+  moods                 Mood[]
+  onboardingCompleted   Boolean      @default(false)
+  onboardingSkipped     Boolean      @default(false)
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+  user                  User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([updatedAt])
 }
 
 model Account {
@@ -277,6 +293,8 @@ model Playlist {
   coverUrl        String?
   isPublic        Boolean                 @default(false)
   isCollaborative Boolean                 @default(false)
+  isSmart         Boolean                 @default(false)
+  smartRules      Json?
   createdAt       DateTime                @default(now())
   updatedAt       DateTime                @updatedAt
   owner           User                    @relation("PlaylistOwner", fields: [ownerId], references: [id], onDelete: Cascade)
@@ -291,6 +309,7 @@ model Playlist {
   @@index([ownerId])
   @@index([folderId])
   @@index([isPublic, updatedAt])
+  @@index([isSmart, updatedAt])
 }
 
 model PlaylistTag {

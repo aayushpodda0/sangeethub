@@ -16,7 +16,7 @@ export const PRIMARY_NAV: NavItem[] = [
 ];
 
 /** Pages that never show the app shell, even when signed in (marketing + auth screens). */
-export const SHELL_HIDDEN_ROUTES = ["/", "/login", "/signup"];
+export const SHELL_HIDDEN_ROUTES = ["/", "/login", "/signup", "/onboarding"];
 
 export function isNavActive(item: Pick<NavItem, "href" | "match">, pathname: string): boolean {
   if (pathname === item.href) return true;

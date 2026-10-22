@@ -22,6 +22,9 @@ Don't move something to Completed without evidence.
 | **Global navigation**: desktop sidebar + mobile bottom tab bar (+ More menu), active-page state, user card, sign-out; hidden for signed-out visitors and on landing/login/signup | Automated (21 tests: visibility rules, links, `aria-current`, sign-out, More menu, Escape, player offset); **visual layout Unverified in a browser** |
 | Insights, profiles, sharing | Manual |
 | Security hardening (see below), health endpoint, prod env validation | Automated where marked |
+| Onboarding music preferences: persisted languages, genres, moods, skip/update flow, personalized recommendation context | Automated (preference schema/API); database migration applied; onboarding UI Manual |
+| Feature 2 player polish: shared audio engine, responsive mini-player trigger, full-screen Now Playing dialog, seek/queue/action controls | Automated (31 focused player tests; full suite 224 tests); browser playback and viewport behavior Manual |
+| Feature 3 smart playlists: typed AND rules, owner-scoped liked/recently-played filters, refresh-on-open, rule editor, and mutation authorization | Automated (smart-rule unit tests, playlist authorization tests, typecheck, lint, build); browser workflow Manual |
 
 ## Current phase
 Phase 2 complete; Phase 3 UI refinement in progress. API boundaries and authorization are covered by
@@ -33,7 +36,7 @@ deterministic Vitest tests. UI changes are code-verified below; browser visual r
   still need the same page-header treatment.
 
 ## Remaining
-- Expandable full-screen mobile player (the mobile tab bar exists; the player bar itself is still the desktop layout on small screens).
+- Browser verification of the full-screen player on desktop, tablet, and mobile, including real audio playback, navigation persistence, queue dismissal, and touch targets.
 - Artwork now renders on track/album/artist pages, track lists, search, library, discover, playlist rows,
   home sidebar, and the player bar. Playlist list/detail cover treatment and party current-track artwork
   remain visual follow-ups.
@@ -57,12 +60,16 @@ deterministic Vitest tests. UI changes are code-verified below; browser visual r
 - Discover UI duplicates the filter constants now centralized in `lib/music/taxonomy.ts`.
 - Private playlists return 403 rather than 404 (reveals that an unguessable id exists).
 - UI has not yet had a full desktop/tablet/mobile browser review after the latest refinement pass.
+- New-user onboarding and Profile taste editing have not yet had a manual browser walkthrough.
+- Feature 2 Now Playing currently initializes its like control from `/api/library`; the brief initial unliked state before that request resolves is functional but could be refined with a dedicated favorite-state endpoint.
+- The existing share control shares the current page URL rather than a dedicated track URL when opened from Now Playing.
+- Smart playlist rules accept artist IDs or slugs; the editor does not yet provide artist autocomplete.
 
 ## Deployment Blockers
-1. **No committed `prisma/migrations`** → `prisma migrate deploy` has nothing to run. Baseline once (see `docs/DEPLOYMENT.md`) and commit it. Include the new `COLLABORATOR_*` activity enum values.
-2. **`npm run build` and full `npm run typecheck` not yet confirmed** in the audit environment (it cannot download Prisma engines). Run both locally.
-3. Needs a host with a long-running Node process + WebSocket support + Postgres (not Vercel/serverless). See `docs/DEPLOYMENT.md`.
-4. Secrets: real `NEXTAUTH_SECRET` (server refuses to start otherwise), `NEXTAUTH_URL`, managed Postgres.
+1. The repository now includes the user-preferences migration. The pre-existing database still needs a
+   one-time migration baseline for older schema changes before a clean production `prisma migrate deploy`.
+2. Needs a host with a long-running Node process + WebSocket support + Postgres (not Vercel/serverless). See `docs/DEPLOYMENT.md`.
+3. Secrets: real `NEXTAUTH_SECRET` (server refuses to start otherwise), `NEXTAUTH_URL`, managed Postgres.
 
 ## Future Features (intentionally deferred)
 Smarter/ML recommendations, natural-language search, AI playlist generation, richer party features (host handoff, room expiry), PWA/offline,

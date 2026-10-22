@@ -9,6 +9,7 @@ import { prisma } from "@/lib/db/prisma";
 import { getAuthSession } from "@/lib/auth/session";
 import { getLikedTrackIds } from "@/lib/library/state";
 import { musicService } from "@/lib/music/service";
+import { getUserMusicPreferences } from "@/lib/preferences/service";
 import { buildRecommendationContext } from "@/lib/recommendations/context";
 import { DeterministicRecommendationService } from "@/lib/recommendations/deterministic-service";
 
@@ -24,7 +25,7 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  const [trending, playlists, artists, albums, recommendationContext] = await Promise.all([
+  const [trending, playlists, artists, albums, recommendationContext, preferences] = await Promise.all([
     musicService.getTrendingTracks(8),
     prisma.playlist.findMany({
       where: {
@@ -39,6 +40,7 @@ export default async function DashboardPage() {
     musicService.getFeaturedArtists(6),
     musicService.getNewReleases(6),
     buildRecommendationContext(session.user.id),
+    getUserMusicPreferences(session.user.id),
   ]);
 
   const recommendationResults =
@@ -110,6 +112,17 @@ export default async function DashboardPage() {
             ))}
           </div>
         </section>
+      )}
+
+      {(preferences.languages.length > 0 || preferences.genres.length > 0 || preferences.moods.length > 0) && (
+        <p className="mb-6 text-sm text-muted-foreground">
+          Your feed is tuned to{" "}
+          {[...preferences.languages, ...preferences.genres, ...preferences.moods]
+            .slice(0, 4)
+            .map((value) => value.toLowerCase().replaceAll("-", " "))
+            .join(", ")}
+          . <Link href="/onboarding" className="text-accent hover:underline">Update preferences</Link>
+        </p>
       )}
 
       <div className="grid gap-10 lg:grid-cols-[2fr_1fr]">

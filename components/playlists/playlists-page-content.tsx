@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, FolderPlus, ListMusic, Lock, Pencil, Plus, Trash2, Users, X } from "lucide-react";
+import { Check, FolderPlus, ListMusic, Lock, Pencil, Plus, Sparkles, Trash2, Users, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -10,6 +10,8 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { SmartPlaylistBuilder } from "@/components/playlists/smart-playlist-builder";
+import type { SmartPlaylistRules } from "@/lib/playlists/schemas";
 
 type PlaylistSummary = {
   id: string;
@@ -18,6 +20,7 @@ type PlaylistSummary = {
   description: string | null;
   isPublic: boolean;
   isCollaborative: boolean;
+  isSmart: boolean;
   trackCount: number;
   owner: { id: string; name: string; username: string };
   isMine: boolean;
@@ -71,6 +74,7 @@ function PlaylistCard({
           <div className="flex shrink-0 items-center gap-1.5 text-muted-foreground">
             {!playlist.isPublic && <Lock className="size-3.5" aria-label="Private" />}
             {playlist.isCollaborative && <Users className="size-3.5" aria-label="Collaborative" />}
+            {playlist.isSmart && <Sparkles className="size-3.5 text-accent" aria-label="Smart playlist" />}
           </div>
         </div>
         {playlist.description && (
@@ -235,6 +239,8 @@ export function PlaylistsPageContent() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [isPublic, setIsPublic] = useState(false);
+  const [isSmart, setIsSmart] = useState(false);
+  const [smartRules, setSmartRules] = useState<SmartPlaylistRules>([{ field: "genre", value: "" }]);
   const [showFolderForm, setShowFolderForm] = useState(false);
   const [folderName, setFolderName] = useState("");
 
@@ -251,7 +257,13 @@ export function PlaylistsPageContent() {
       const res = await fetch("/api/playlists", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, description: description || undefined, isPublic }),
+        body: JSON.stringify({
+          name,
+          description: description || undefined,
+          isPublic,
+          isSmart,
+          smartRules: isSmart ? smartRules : undefined,
+        }),
       });
       const body = (await res.json()) as { data?: { id: string }; error?: { message: string } };
       if (!res.ok) throw new Error(body.error?.message ?? "Couldn't create playlist");
@@ -370,6 +382,16 @@ export function PlaylistsPageContent() {
             />
             Make this playlist public
           </label>
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={isSmart}
+              onChange={(e) => setIsSmart(e.target.checked)}
+              className="size-4 rounded border-border accent-accent"
+            />
+            Auto-update this playlist from rules
+          </label>
+          {isSmart && <SmartPlaylistBuilder value={smartRules} onChange={setSmartRules} />}
           <div className="flex gap-2">
             <Button type="submit" disabled={createPlaylistMutation.isPending}>
               {createPlaylistMutation.isPending ? "Creating..." : "Create playlist"}

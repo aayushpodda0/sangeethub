@@ -90,6 +90,11 @@ export default async function ProfilePage({ params }: RouteParams) {
             @{profileUser.username} • joined {joinedYear}
           </p>
         </div>
+        {isOwnProfile && (
+          <Link href="/onboarding" className="rounded-xl border border-border px-3 py-2 text-sm hover:border-accent/50">
+            Edit taste
+          </Link>
+        )}
       </div>
 
       {(topGenres.length > 0 || topLanguages.length > 0) && (

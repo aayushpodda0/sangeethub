@@ -1,9 +1,11 @@
 import { apiError, apiSuccess } from "@/lib/api/response";
+import { Prisma } from "@prisma/client";
 import { getAuthSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
 import { getPlaylistAccess } from "@/lib/playlists/authorization";
-import { updatePlaylistSchema } from "@/lib/playlists/schemas";
+import { smartRulesSchema, updatePlaylistSchema } from "@/lib/playlists/schemas";
 import { serializePlaylist } from "@/lib/playlists/serializers";
+import { refreshSmartPlaylist } from "@/lib/playlists/smart-playlists";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -12,12 +14,23 @@ export async function GET(_request: Request, { params }: RouteParams) {
   const session = await getAuthSession();
   const userId = session?.user?.id;
 
-  const access = await getPlaylistAccess(id, userId);
+  let access = await getPlaylistAccess(id, userId);
   if (!access) {
     return apiError(404, "NOT_FOUND", "Playlist not found.");
   }
   if (!access.canView) {
     return apiError(403, "FORBIDDEN", "You don't have access to this playlist.");
+  }
+
+  if (access.playlist.isSmart && access.isOwner) {
+    try {
+      await refreshSmartPlaylist(id, userId!);
+      access = await getPlaylistAccess(id, userId);
+      if (!access) return apiError(404, "NOT_FOUND", "Playlist not found.");
+    } catch (error) {
+      console.error("[playlists:refresh-smart] failed:", error);
+      return apiError(500, "SMART_PLAYLIST_REFRESH_FAILED", "Couldn't refresh this smart playlist.");
+    }
   }
 
   return apiSuccess(serializePlaylist(access, userId));
@@ -49,6 +62,15 @@ export async function PATCH(request: Request, { params }: RouteParams) {
   const parsed = updatePlaylistSchema.safeParse(json);
   if (!parsed.success) {
     return apiError(400, "VALIDATION_ERROR", "Invalid update", parsed.error.flatten());
+  }
+
+  const nextIsSmart = parsed.data.isSmart ?? access.playlist.isSmart;
+  const nextRules = parsed.data.smartRules !== undefined ? parsed.data.smartRules : access.playlist.smartRules;
+  if (nextIsSmart) {
+    const rules = smartRulesSchema.safeParse(nextRules);
+    if (!rules.success) {
+      return apiError(400, "INVALID_SMART_RULES", "Smart playlists need valid rules.", rules.error.flatten());
+    }
   }
 
   if (parsed.data.folderId) {
@@ -85,6 +107,11 @@ export async function PATCH(request: Request, { params }: RouteParams) {
           isPublic: parsed.data.isPublic,
           isCollaborative: parsed.data.isCollaborative,
           folderId: parsed.data.folderId,
+          isSmart: parsed.data.isSmart,
+          smartRules:
+            parsed.data.isSmart === false || parsed.data.smartRules === null
+              ? Prisma.JsonNull
+              : parsed.data.smartRules,
         },
       });
 
@@ -95,6 +122,9 @@ export async function PATCH(request: Request, { params }: RouteParams) {
       }
     });
 
+    if (nextIsSmart) {
+      await refreshSmartPlaylist(id, userId);
+    }
     const updatedAccess = await getPlaylistAccess(id, userId);
     return apiSuccess(serializePlaylist(updatedAccess!, userId));
   } catch (error) {

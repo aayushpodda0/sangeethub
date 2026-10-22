@@ -19,6 +19,8 @@ import { GET as recommendations } from "@/app/api/recommendations/route";
 import { POST as createRoom } from "@/app/api/party/route";
 import { GET as getRoom } from "@/app/api/party/[roomCode]/route";
 import { GET as search } from "@/app/api/search/route";
+import { GET as getPreferences, PUT as updatePreferences } from "@/app/api/preferences/route";
+import { POST as skipPreferences } from "@/app/api/preferences/skip/route";
 
 const as = (userId: string | null) =>
   vi.mocked(getAuthSession).mockResolvedValue((userId ? { user: { id: userId } } : null) as any);
@@ -172,6 +174,40 @@ describe("GET /api/health", () => {
     const res = await health();
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ status: "ok", database: "up" });
+  });
+
+  describe("preferences API", () => {
+    it("rejects anonymous reads and writes", async () => {
+      as(null);
+      expect((await getPreferences()).status).toBe(401);
+      expect((await updatePreferences(jsonRequest("/", "PUT", {}))).status).toBe(401);
+      expect((await skipPreferences()).status).toBe(401);
+    });
+
+    it("rejects malformed preference values before persistence", async () => {
+      as("u1");
+      const res = await updatePreferences(jsonRequest("/", "PUT", {
+        languages: ["NOT_A_LANGUAGE"],
+        genres: ["bad slug!"],
+        moods: ["NOT_A_MOOD"],
+      }));
+      expect(res.status).toBe(400);
+      expect(prismaMock.userMusicPreferences.upsert.mock.calls).toHaveLength(0);
+    });
+
+    it("stores preferences for the authenticated user only", async () => {
+      as("u1");
+      prismaMock.userMusicPreferences.upsert.mockResolvedValue({
+        languages: ["HINDI"], genres: ["lo-fi"], moods: ["RELAX"],
+        onboardingCompleted: true, onboardingSkipped: false,
+      });
+      const res = await updatePreferences(jsonRequest("/", "PUT", {
+        userId: "victim", languages: ["HINDI"], genres: ["lo-fi"], moods: ["RELAX"],
+      }));
+      expect(res.status).toBe(200);
+      expect(prismaMock.userMusicPreferences.upsert.mock.calls[0]![0].where).toEqual({ userId: "u1" });
+      expect(prismaMock.userMusicPreferences.upsert.mock.calls[0]![0].create.userId).toBe("u1");
+    });
   });
 
   it("503s without leaking error details when the database is down", async () => {

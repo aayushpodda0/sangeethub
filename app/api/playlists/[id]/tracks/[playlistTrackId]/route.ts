@@ -24,6 +24,9 @@ export async function DELETE(_request: Request, { params }: RouteParams) {
   }
 
   if (!access.canRemoveTrack(entry.addedById)) {
+    if (access.playlist.isSmart) {
+      return apiError(409, "SMART_PLAYLIST_MANAGED", "Smart playlists update from their rules and cannot be edited manually.");
+    }
     return apiError(
       403,
       "FORBIDDEN",

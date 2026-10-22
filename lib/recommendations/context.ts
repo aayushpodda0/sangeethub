@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db/prisma";
+import { getUserMusicPreferences } from "@/lib/preferences/service";
 import type { RecommendationContext } from "@/lib/recommendations/service";
 import type { Activity, LanguageCode, Mood } from "@prisma/client";
 
@@ -16,7 +17,7 @@ function bump<T extends string>(counts: Map<T, number>, values: T[]) {
 }
 
 export async function buildRecommendationContext(userId: string): Promise<RecommendationContext> {
-  const [followedArtists, favoriteTracks, recentlyPlayed] = await Promise.all([
+  const [followedArtists, favoriteTracks, recentlyPlayed, explicitPreferences] = await Promise.all([
     prisma.followedArtist.findMany({ where: { userId }, select: { artistId: true } }),
     prisma.favoriteTrack.findMany({
       where: { userId },
@@ -47,6 +48,7 @@ export async function buildRecommendationContext(userId: string): Promise<Recomm
         },
       },
     }),
+    getUserMusicPreferences(userId),
   ]);
 
   const genreCounts = new Map<string, number>();
@@ -79,9 +81,9 @@ export async function buildRecommendationContext(userId: string): Promise<Recomm
   return {
     userId,
     favoriteArtistIds: [...favoriteArtistIds],
-    topGenreSlugs: topN(genreCounts, 5),
-    languagePreferences: topN(languageCounts, 3),
-    moodPreferences: topN(moodCounts, 3),
+    topGenreSlugs: [...new Set([...explicitPreferences.genres, ...topN(genreCounts, 5)])].slice(0, 5),
+    languagePreferences: [...new Set([...explicitPreferences.languages, ...topN(languageCounts, 3)])].slice(0, 3),
+    moodPreferences: [...new Set([...explicitPreferences.moods, ...topN(moodCounts, 3)])].slice(0, 3),
     activityPreferences: topN(activityCounts, 3),
   };
 }

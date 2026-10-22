@@ -62,7 +62,7 @@ export function SignupForm() {
       }
 
       toast.success("Account created successfully");
-      router.push("/home");
+      router.push("/onboarding");
       router.refresh();
     } catch {
       toast.error("Unable to reach the server. Please make sure the database and app are running.");

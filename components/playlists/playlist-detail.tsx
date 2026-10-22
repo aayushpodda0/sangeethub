@@ -1,19 +1,21 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Link2, Lock, Trash2, Users, X } from "lucide-react";
+import { Link2, Lock, Sparkles, Trash2, Users, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
 import { AddTrackSearch } from "@/components/playlists/add-track-search";
+import { SmartPlaylistBuilder } from "@/components/playlists/smart-playlist-builder";
 import { PlaylistTrackRow } from "@/components/playlists/playlist-track-row";
 import { ShareButton } from "@/components/shared/share-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import type { SerializedPlaylist } from "@/lib/playlists/serializers";
+import type { SmartPlaylistRules } from "@/lib/playlists/schemas";
 import { cn } from "@/lib/utils";
 
 async function fetchPlaylist(id: string): Promise<SerializedPlaylist> {
@@ -51,12 +53,14 @@ export function PlaylistDetail({ playlistId }: { playlistId: string }) {
 
   const [nameDraft, setNameDraft] = useState("");
   const [descriptionDraft, setDescriptionDraft] = useState("");
+  const [smartRulesDraft, setSmartRulesDraft] = useState<SmartPlaylistRules>([{ field: "genre", value: "" }]);
   const [lastSyncedPlaylistId, setLastSyncedPlaylistId] = useState<string | null>(null);
 
   if (playlist && playlist.id !== lastSyncedPlaylistId) {
     setLastSyncedPlaylistId(playlist.id);
     setNameDraft(playlist.name);
     setDescriptionDraft(playlist.description ?? "");
+    setSmartRulesDraft(playlist.smartRules ?? [{ field: "genre", value: "" }]);
   }
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ["playlist", playlistId] });
@@ -68,6 +72,8 @@ export function PlaylistDetail({ playlistId }: { playlistId: string }) {
         description: string | null;
         isPublic: boolean;
         isCollaborative: boolean;
+        isSmart: boolean;
+        smartRules: SerializedPlaylist["smartRules"];
         folderId: string | null;
       }>,
     ) => {
@@ -251,6 +257,29 @@ export function PlaylistDetail({ playlistId }: { playlistId: string }) {
         </div>
       </div>
 
+      {playlist.isSmart && playlist.smartRules && (
+        <section className="mb-6 rounded-2xl border border-accent/30 bg-accent/5 p-4">
+          <div className="mb-2 flex items-center gap-2 text-sm font-medium">
+            <Sparkles className="size-4 text-accent" />
+            Smart playlist
+          </div>
+          <p className="text-xs text-muted-foreground">
+            This playlist refreshes from all active rules whenever you open it. Manual track editing is disabled.
+          </p>
+          <ul className="mt-3 flex flex-wrap gap-2 text-xs text-muted-foreground">
+            {playlist.smartRules.map((rule, index) => (
+              <li key={`${rule.field}-${index}`} className="rounded-full border border-border bg-card px-2.5 py-1">
+                {rule.field === "recentlyPlayed"
+                  ? `Played in last ${rule.withinDays} days`
+                  : rule.field === "releaseDate"
+                    ? `Released ${rule.operator} ${rule.value.slice(0, 10)}`
+                    : `${rule.field}: ${"value" in rule ? String(rule.value) : ""}`}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       {showSettings && playlist.canEditSettings && (
         <div className="mb-6 space-y-4 rounded-2xl border border-border bg-card p-4">
           <div className="space-y-2">
@@ -290,6 +319,19 @@ export function PlaylistDetail({ playlistId }: { playlistId: string }) {
               Allow collaborators to add tracks
             </label>
           </div>
+
+          {playlist.isSmart && playlist.smartRules && (
+            <>
+              <SmartPlaylistBuilder value={smartRulesDraft} onChange={setSmartRulesDraft} />
+              <Button
+                size="sm"
+                onClick={() => updateMutation.mutate({ isSmart: true, smartRules: smartRulesDraft })}
+                disabled={updateMutation.isPending || smartRulesDraft.length === 0}
+              >
+                Save smart rules
+              </Button>
+            </>
+          )}
 
           <div className="flex items-center gap-2 border-t border-border pt-4 text-sm">
             <label htmlFor="playlist-folder-select" className="shrink-0 text-muted-foreground">

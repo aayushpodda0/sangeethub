@@ -15,13 +15,13 @@ import {
 import { useEffect } from "react";
 
 import { QueuePanel } from "@/components/player/queue-panel";
+import { usePlayerEngine } from "@/components/player/player-engine-context";
 import { Artwork } from "@/components/music/artwork";
 import { Button } from "@/components/ui/button";
-import { useAudioEngine } from "@/lib/player/use-audio-engine";
 import { usePlayerStore } from "@/lib/player/store";
 import { cn, formatDuration as formatTime } from "@/lib/utils";
 
-export function PlayerBar() {
+export function PlayerBar({ onExpand }: { onExpand: () => void }) {
   const track = usePlayerStore((state) => state.currentTrack());
   const isPlaying = usePlayerStore((state) => state.isPlaying);
   const shuffle = usePlayerStore((state) => state.shuffle);
@@ -38,7 +38,7 @@ export function PlayerBar() {
   const setVolume = usePlayerStore((state) => state.setVolume);
   const toggleMute = usePlayerStore((state) => state.toggleMute);
 
-  const { progress, duration, isLoading, seek } = useAudioEngine();
+  const { progress, duration, isLoading, seek } = usePlayerEngine();
 
   // Keyboard shortcuts: space = play/pause, arrows = seek/skip.
   useEffect(() => {
@@ -106,7 +106,12 @@ export function PlayerBar() {
 
         <div className="flex items-center justify-between gap-4">
           {/* Track info */}
-          <div className="flex min-w-0 flex-1 items-center gap-3">
+          <button
+            type="button"
+            onClick={onExpand}
+            className="flex min-w-0 flex-1 items-center gap-3 rounded-xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            aria-label={`Open now playing for ${track.title}`}
+          >
             <Artwork
               src={track.artworkUrl}
               seed={track.id}
@@ -120,7 +125,7 @@ export function PlayerBar() {
                 {track.artistNames.join(", ")}
               </p>
             </div>
-          </div>
+          </button>
 
           {/* Transport controls */}
           <div className="flex items-center gap-1 sm:gap-2">
@@ -133,6 +138,16 @@ export function PlayerBar() {
               className={cn(shuffle && "text-accent")}
             >
               <Shuffle className="size-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Open full-screen now playing"
+              onClick={onExpand}
+              className="md:hidden"
+            >
+              <span className="sr-only">Open full-screen now playing</span>
+              <span aria-hidden className="text-xs">↗</span>
             </Button>
             <Button variant="ghost" size="icon" aria-label="Previous track" onClick={playPrevious}>
               <SkipBack className="size-5" />

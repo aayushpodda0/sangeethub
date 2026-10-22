@@ -2,6 +2,7 @@ import { apiError, apiSuccess } from "@/lib/api/response";
 import { getAuthSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
 import { createPlaylistSchema } from "@/lib/playlists/schemas";
+import { Prisma } from "@prisma/client";
 
 function slugify(name: string) {
   return (
@@ -53,6 +54,8 @@ export async function GET() {
         coverUrl: p.coverUrl,
         isPublic: p.isPublic,
         isCollaborative: p.isCollaborative,
+        isSmart: p.isSmart,
+        smartRules: p.smartRules,
         trackCount: p._count.tracks,
         owner: p.owner,
         isMine: userId === p.ownerId,
@@ -94,6 +97,8 @@ export async function POST(request: Request) {
           name: parsed.data.name,
           description: parsed.data.description || null,
           isPublic: parsed.data.isPublic ?? false,
+          isSmart: parsed.data.isSmart ?? false,
+          smartRules: parsed.data.isSmart ? parsed.data.smartRules : Prisma.JsonNull,
           slug,
         },
       });

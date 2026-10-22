@@ -54,6 +54,8 @@ export function playlistFixture(overrides: Record<string, any> = {}) {
     ownerId: "owner",
     isPublic: false,
     isCollaborative: true,
+    isSmart: false,
+    smartRules: null,
     folderId: null,
     folder: null,
     createdAt: new Date(),
