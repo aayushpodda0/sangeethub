@@ -24,7 +24,7 @@ test("searches the catalog and plays a result from the persistent player", async
   await expect(results.first()).toBeVisible({ timeout: 10000 });
 
   const firstTitle = await results.first().locator("p").first().innerText();
-  await results.first().getByRole("button", { name: /^play/i }).click();
+  await results.first().locator('button[aria-label^="Play "]').first().click();
 
   // The persistent player bar should now show the same track and be playing.
   const playerBar = page.getByRole("region", { name: /now playing/i });

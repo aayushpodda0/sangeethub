@@ -31,7 +31,7 @@ SangeetHub is **not** a serverless/static app. Party rooms use Socket.IO on a cu
 
 ```bash
 npm ci                      # `postinstall` runs `prisma generate`
-npm run db:deploy           # prisma migrate deploy  (see "Migrations" - needs a committed baseline)
+npm run db:deploy           # prisma migrate deploy
 npm run build               # next build
 npm start                   # production custom server (Next + Socket.IO)
 ```
@@ -92,6 +92,10 @@ location / {
 - No `Content-Security-Policy` yet (needs a nonce setup because `next-themes` injects an inline script) — see `PROJECT_STATUS.md`.
 - Signup and login are rate limited per process (10 attempts / 15 min per IP, per IP+email for login). Only trustworthy if your proxy sets `X-Forwarded-For` and clients can't reach the app directly.
 - Logs go to stdout/stderr; there is no log shipping or error tracking configured.
-- Before production, review and remediate the current production dependency audit findings
-  (`npm audit --omit=dev --audit-level=high`). Do not use `npm audit fix --force` without testing
-  the resulting Next.js/Prisma upgrades.
+- Dependency gate (2026-11-01): Next.js was upgraded from 16.3.0 to 16.4.3, with matching
+  `eslint-config-next`; Zod, Socket.IO/Engine.IO, Sharp, and source-map-js were patched.
+  The audit changed from 1 critical + 7 high findings to 3 high findings in Prisma 6's
+  `deepmerge-ts` configuration path. Prisma 7.10.1 is the available audit fix but is a major
+  migration requiring a reviewed client/config/adapter change; do not use `npm audit fix --force`.
+  Production release remains blocked until this exception is accepted for staging or Prisma 7
+  is migrated and fully tested.

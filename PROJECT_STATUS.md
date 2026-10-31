@@ -70,16 +70,36 @@ code-verified below; browser visual review remains manual.
 - Social preview cards have not yet been inspected in Slack, Discord, WhatsApp, or Twitter/X link composers; production previews require a public HTTPS `NEXTAUTH_URL`.
 
 ## Deployment Blockers
-1. The local database reports `0_init` as unapplied. An existing/staging database needs a reviewed,
-   backup-protected one-time baseline procedure before `prisma migrate deploy`; do not resolve it
-   against production until a staging clone is verified.
-2. Authenticated Playwright E2E has not passed because the required staging seed password was not
-   supplied. Run it against an isolated seeded database with `SEED_LISTENER_PASSWORD` set out of band.
+1. The source local database still reports `0_init` as unapplied. A verified backup and isolated
+   clone were created; the documented baseline resolution and `db:deploy` procedure passed on the
+   clone. The source database was not modified.
+2. The isolated Playwright suite now passes 7/7 tests with out-of-band seed credentials. It covers
+   login, protected-route behavior, search, playback trigger, playlist creation/addition, and empty
+   states. Smart-playlist, sharing metadata, party-room, and full-screen-player browser workflows
+   remain unverified because no corresponding E2E specs exist.
 3. Needs a host with a long-running Node process + WebSocket support + Postgres (not Vercel/serverless). See `docs/DEPLOYMENT.md`.
 4. Staging secrets: real `NEXTAUTH_SECRET` (server refuses to start otherwise), `NEXTAUTH_URL`, and managed Postgres.
-5. `npm audit --omit=dev --audit-level=high` reports 8 production dependency vulnerabilities
-   (7 high, 1 critical). Remediation needs a reviewed dependency upgrade, especially the Next.js
-   upgrade outside the currently pinned range; `npm audit fix --force` was not run.
+5. Dependency audit improved from 1 critical + 7 high findings to 3 high Prisma 6 findings
+   (`prisma`, `@prisma/config`, `deepmerge-ts`). The available Prisma 7.10.1 fix is a major
+   migration and remains unaccepted until compatibility work is reviewed.
+
+## Release gate evidence (2026-11-01, baseline commit `6f542d1`)
+
+- Dependency upgrades: Next.js and `eslint-config-next` 16.4.3; Zod 4.6.7; Socket.IO 4.8.4;
+  Engine.IO 6.6.11; source-map-js 1.2.2; Prisma client/CLI remain 6.19.3.
+- `npm audit --omit=dev --json`: before remediation 8 findings (1 critical, 7 high); after
+  remediation 3 high Prisma configuration findings, 0 critical.
+- `npm run typecheck`, `npm run lint`, `npm test` (23 files, 235 tests), and `npm run build` passed.
+- Fresh isolated PostgreSQL deployment passed all three migrations.
+- Existing-database clone: binary backup verified (87,231 bytes), restored to a separate database;
+  `migrate resolve --applied 0_init`, `db:deploy`, and final `migrate status` all passed.
+- Playwright: 7 passed, 0 failed, 0 skipped, using isolated `sangeethub_e2e` PostgreSQL and
+  out-of-band credentials. Playwright was aligned to `localhost` and given a 15-second assertion
+  timeout because Next.js development compilation/authentication exceeds the default timeout.
+- Production server startup and health endpoint were previously verified with HTTP 200. A cloned
+  production server started successfully. Desktop and mobile login pages showed no horizontal
+  overflow; authenticated playback, queue, party-room synchronization, reconnection, and full
+  responsive player checks remain manual/unverified.
 
 ## Future Features (intentionally deferred)
 Smarter/ML recommendations, natural-language search, AI playlist generation, richer party features (host handoff, room expiry), PWA/offline,
