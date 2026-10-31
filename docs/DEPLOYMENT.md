@@ -42,14 +42,17 @@ never seed a production database with demo accounts.
 
 ## Migrations
 
-The repository includes a three-migration chain:
+The repository includes a four-migration chain:
 
 1. `0_init` — the pre-preferences/pre-smart-playlists schema baseline, including the current
    collaboration activity enum values.
 2. `20261021183000_add_user_music_preferences`
 3. `20261022160000_add_smart_playlists`
+4. `20261101040000_add_collaborator_activity_values` — forward-only compatibility for existing
+   databases whose original enum predates collaborator activity values; no-op on fresh baselines.
 
-The chain was verified with `prisma migrate deploy` against a fresh isolated PostgreSQL database.
+The chain was verified with `prisma migrate deploy` against a fresh isolated PostgreSQL database,
+and the restored existing-database clone reached zero schema diff after the compatibility migration.
 After that, every schema change is `npx prisma migrate dev --name <change>` locally and
 `npm run db:deploy` on the server.
 

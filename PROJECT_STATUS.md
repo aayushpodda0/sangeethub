@@ -83,16 +83,24 @@ code-verified below; browser visual review remains manual.
    (`prisma`, `@prisma/config`, `deepmerge-ts`). The available Prisma 7.10.1 fix is a major
    migration and remains unaccepted until compatibility work is reviewed.
 
-## Release gate evidence (2026-11-01, baseline commit `6f542d1`)
+## Release gate evidence (2026-11-01, evaluated commit `7fc985e`)
 
 - Dependency upgrades: Next.js and `eslint-config-next` 16.4.3; Zod 4.6.7; Socket.IO 4.8.4;
   Engine.IO 6.6.11; source-map-js 1.2.2; Prisma client/CLI remain 6.19.3.
 - `npm audit --omit=dev --json`: before remediation 8 findings (1 critical, 7 high); after
-  remediation 3 high Prisma configuration findings, 0 critical.
+  remediation 3 high Prisma configuration findings, 0 critical. The sole underlying advisory is
+  GHSA-ggr8-5vv4-36mx / npm advisory 1145093 (CWE-674, deepmerge-ts stack exhaustion, affected
+  `<8.0.0`); Prisma 6.19.3 includes the affected `@prisma/config` 6.19.3 and deepmerge-ts 7.1.5
+  path.
+  The Prisma CLI/config path is development/deployment tooling; application runtime imports
+  `@prisma/client`, but npm still reports the optional Prisma peer graph.
 - `npm run typecheck`, `npm run lint`, `npm test` (23 files, 235 tests), and `npm run build` passed.
-- Fresh isolated PostgreSQL deployment passed all three migrations.
+- Fresh isolated PostgreSQL deployment passed all four migrations, including the forward-only
+  collaborator enum compatibility migration.
 - Existing-database clone: binary backup verified (87,231 bytes), restored to a separate database;
-  `migrate resolve --applied 0_init`, `db:deploy`, and final `migrate status` all passed.
+  `migrate resolve --applied 0_init`, `db:deploy`, and final `migrate status` passed. The first
+  schema comparison exposed missing collaborator enum values; after applying the compatibility
+  migration, `prisma migrate diff` reported no difference. The source database was not changed.
 - Playwright: 7 passed, 0 failed, 0 skipped, using isolated `sangeethub_e2e` PostgreSQL and
   out-of-band credentials. Playwright was aligned to `localhost` and given a 15-second assertion
   timeout because Next.js development compilation/authentication exceeds the default timeout.
@@ -100,6 +108,8 @@ code-verified below; browser visual review remains manual.
   production server started successfully. Desktop and mobile login pages showed no horizontal
   overflow; authenticated playback, queue, party-room synchronization, reconnection, and full
   responsive player checks remain manual/unverified.
+- Current `HEAD` is `7fc985e` and matches `origin/main`; the compatibility migration is currently
+  uncommitted in the working tree and must be reviewed/committed before deployment.
 
 ## Future Features (intentionally deferred)
 Smarter/ML recommendations, natural-language search, AI playlist generation, richer party features (host handoff, room expiry), PWA/offline,
