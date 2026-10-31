@@ -10,6 +10,7 @@ import { getAuthSession } from "@/lib/auth/session";
 import { getLikedTrackIds, isFollowingArtist } from "@/lib/library/state";
 import { musicService } from "@/lib/music/service";
 import { titleCase } from "@/lib/utils";
+import { createShareMetadata } from "@/lib/seo/metadata";
 
 type ArtistPageProps = {
   params: Promise<{ id: string }>;
@@ -18,7 +19,16 @@ type ArtistPageProps = {
 export async function generateMetadata({ params }: ArtistPageProps): Promise<Metadata> {
   const { id } = await params;
   const artist = await musicService.getArtistById(id);
-  return { title: artist ? `${artist.name} | SangeetHub` : "Artist | SangeetHub" };
+  return artist
+    ? createShareMetadata({
+        title: artist.name,
+        description: `${artist.isIndependent ? "Independent artist" : "Artist"} from ${
+          artist.region ?? artist.city ?? "India"
+        }. Discover their music on SangeetHub.`,
+        path: `/artists/${artist.id}`,
+        kind: "artist",
+      })
+    : { title: "Artist | SangeetHub" };
 }
 
 export default async function ArtistPage({ params }: ArtistPageProps) {

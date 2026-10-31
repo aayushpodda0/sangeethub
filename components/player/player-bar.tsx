@@ -74,7 +74,7 @@ export function PlayerBar({ onExpand }: { onExpand: () => void }) {
 
   return (
     <div
-      className="fixed inset-x-0 bottom-[var(--bottom-nav-h,0px)] z-50 md:bottom-0 border-t border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80"
+      className="fixed inset-x-0 bottom-(--bottom-nav-h,0px) z-50 md:bottom-0 border-t border-border bg-card/95 backdrop-blur supports-backdrop-filter:bg-card/80"
       role="region"
       aria-label="Now playing"
     >

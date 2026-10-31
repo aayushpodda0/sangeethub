@@ -10,7 +10,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "rounded-full bg-[image:var(--gradient-sunset)] text-accent-foreground shadow-[0_6px_20px_-6px_rgba(242,84,45,0.55)] hover:shadow-[0_8px_24px_-6px_rgba(242,84,45,0.7)] hover:brightness-105 focus-visible:ring-accent",
+          "rounded-full bg-(image:--gradient-sunset) text-accent-foreground shadow-[0_6px_20px_-6px_rgba(242,84,45,0.55)] hover:shadow-[0_8px_24px_-6px_rgba(242,84,45,0.7)] hover:brightness-105 focus-visible:ring-accent",
         secondary:
           "rounded-xl bg-secondary text-secondary-foreground hover:opacity-90 focus-visible:ring-secondary",
         ghost: "rounded-lg hover:bg-muted/80 focus-visible:ring-muted-foreground",

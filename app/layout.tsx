@@ -19,6 +19,12 @@ const fraunces = Fraunces({
 export const metadata: Metadata = {
   title: "SangeetHub",
   description: "Music discovery and demo streaming with transparent recommendations.",
+  metadataBase: new URL(process.env.NEXTAUTH_URL ?? "http://localhost:3000"),
+  openGraph: {
+    siteName: "SangeetHub",
+    type: "website",
+  },
+  twitter: { card: "summary_large_image" },
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {

@@ -11,6 +11,7 @@ import { getAuthSession } from "@/lib/auth/session";
 import { getLikedTrackIds, isAlbumSaved } from "@/lib/library/state";
 import { musicService } from "@/lib/music/service";
 import { formatDuration, titleCase } from "@/lib/utils";
+import { createShareMetadata } from "@/lib/seo/metadata";
 
 type AlbumPageProps = {
   params: Promise<{ id: string }>;
@@ -19,7 +20,14 @@ type AlbumPageProps = {
 export async function generateMetadata({ params }: AlbumPageProps): Promise<Metadata> {
   const { id } = await params;
   const album = await musicService.getAlbumById(id);
-  return { title: album ? `${album.title} | SangeetHub` : "Album | SangeetHub" };
+  return album
+    ? createShareMetadata({
+        title: album.title,
+        description: `${album.primaryArtist.name} · ${album.tracks.length} tracks. Explore this album on SangeetHub.`,
+        path: `/albums/${album.id}`,
+        kind: "album",
+      })
+    : { title: "Album | SangeetHub" };
 }
 
 export default async function AlbumPage({ params }: AlbumPageProps) {

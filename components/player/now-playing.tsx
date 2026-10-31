@@ -71,7 +71,7 @@ export function NowPlaying({ open, onClose }: { open: boolean; onClose: () => vo
 
   return (
     <div
-      className="fixed inset-0 z-[70] overflow-y-auto bg-background/98 px-4 py-5 backdrop-blur sm:px-8 sm:py-8"
+      className="fixed inset-0 z-70 overflow-y-auto bg-background/98 px-4 py-5 backdrop-blur sm:px-8 sm:py-8"
       role="dialog"
       aria-modal="true"
       aria-labelledby="now-playing-title"
@@ -93,7 +93,7 @@ export function NowPlaying({ open, onClose }: { open: boolean; onClose: () => vo
               src={track.artworkUrl}
               seed={track.id}
               alt={`${track.title} artwork`}
-              className="mx-auto aspect-square w-full max-w-[min(72vw,26rem)] rounded-[2rem] shadow-[var(--shadow-surface)]"
+              className="mx-auto aspect-square w-full max-w-[min(72vw,26rem)] rounded-4xl shadow-(--shadow-surface)"
             />
             <div className="mt-7 text-left">
               <h1 id="now-playing-title" className="font-display truncate text-3xl font-medium sm:text-4xl">

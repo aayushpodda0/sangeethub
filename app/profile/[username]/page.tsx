@@ -4,12 +4,25 @@ import { notFound } from "next/navigation";
 
 import { getAuthSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
+import { createShareMetadata } from "@/lib/seo/metadata";
 
 type RouteParams = { params: Promise<{ username: string }> };
 
 export async function generateMetadata({ params }: RouteParams): Promise<Metadata> {
   const { username } = await params;
-  return { title: `${username} | SangeetHub` };
+  const profileUser = await prisma.user.findUnique({
+    where: { username: username.toLowerCase() },
+    select: { name: true, username: true },
+  });
+  if (!profileUser) return { title: "Profile | SangeetHub" };
+
+  const displayName = profileUser.name ?? profileUser.username;
+  return createShareMetadata({
+    title: displayName,
+    description: `Explore ${displayName}'s public music profile and playlists on SangeetHub.`,
+    path: `/profile/${profileUser.username}`,
+    kind: "profile",
+  });
 }
 
 function topN<T extends string>(counts: Map<T, number>, n: number) {
@@ -79,7 +92,7 @@ export default async function ProfilePage({ params }: RouteParams) {
   return (
     <main className="mx-auto min-h-screen w-full max-w-3xl px-4 py-6 sm:px-6">
       <div className="mb-8 flex items-center gap-4">
-        <div className="flex size-16 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-accent to-secondary text-xl font-semibold text-background">
+        <div className="flex size-16 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-accent to-secondary text-xl font-semibold text-background">
           {initial}
         </div>
         <div className="min-w-0 flex-1">

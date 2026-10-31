@@ -57,7 +57,7 @@ function Brand() {
     >
       <span
         aria-hidden
-        className="size-8 rounded-full bg-[image:var(--gradient-sunset)] shadow-[0_6px_20px_-6px_rgba(242,84,45,0.6)]"
+        className="size-8 rounded-full bg-(image:--gradient-sunset) shadow-[0_6px_20px_-6px_rgba(242,84,45,0.6)]"
       />
       <span className="font-display text-xl font-medium tracking-tight">SangeetHub</span>
     </Link>
@@ -78,7 +78,7 @@ function SidebarLink({ item, pathname }: { item: NavItem; pathname: string }) {
           : "text-muted-foreground hover:bg-muted hover:text-foreground",
       )}
     >
-      <Icon className="size-[18px]" aria-hidden />
+      <Icon className="size-4.5" aria-hidden />
       {item.label}
     </Link>
   );
@@ -231,7 +231,7 @@ export function AppShell({ children }: PropsWithChildren) {
           >
             <span
               aria-hidden
-              className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[image:var(--gradient-sunset)] text-sm font-semibold text-accent-foreground"
+              className="flex size-9 shrink-0 items-center justify-center rounded-full bg-(image:--gradient-sunset) text-sm font-semibold text-accent-foreground"
             >
               {displayName.charAt(0).toUpperCase()}
             </span>

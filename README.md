@@ -33,7 +33,7 @@ catalog can later be swapped for a real licensed music API without touching the 
 - **Onboarding preferences** — select languages, genres, and moods to tune recommendations, skip setup,
   and update taste preferences from your profile
 - **Share links** — native share sheet / clipboard copy for tracks, albums, artists,
-  playlists
+  playlists, with generated Open Graph and Twitter preview cards for public entities
 
 ## Tech stack
 
@@ -67,6 +67,9 @@ Auth.js · Zustand (player state) · TanStack Query (server state) · Socket.IO
   a user's taste profile from explicit preferences and listening history.
 - `lib/preferences/` — validated, user-scoped music preference persistence used by onboarding,
   profile editing, and recommendation context.
+- `lib/seo/metadata.ts` — shared canonical URL, Open Graph, Twitter, generated preview image,
+  and private-resource metadata helpers. `/api/og` renders deterministic text-based preview cards
+  without external or copyrighted artwork.
 - `lib/party/` — `playback-state.ts` is the pure elapsed-time calculation (unit-tested);
   `socket-handlers.ts` is the actual Socket.IO event wiring; `types.ts` is the shared
   client/server event contract.

@@ -25,6 +25,7 @@ Don't move something to Completed without evidence.
 | Onboarding music preferences: persisted languages, genres, moods, skip/update flow, personalized recommendation context | Automated (preference schema/API); database migration applied; onboarding UI Manual |
 | Feature 2 player polish: shared audio engine, responsive mini-player trigger, full-screen Now Playing dialog, seek/queue/action controls | Automated (31 focused player tests; full suite 224 tests); browser playback and viewport behavior Manual |
 | Feature 3 smart playlists: typed AND rules, owner-scoped liked/recently-played filters, refresh-on-open, rule editor, and mutation authorization | Automated (smart-rule unit tests, playlist authorization tests, typecheck, lint, build); browser workflow Manual |
+| Feature 4 share previews: generated Open Graph/Twitter cards for catalog pages, public playlists, and profiles; private playlist/party metadata protection | Automated (metadata tests, typecheck, lint, build); social-client rendering Manual |
 
 ## Current phase
 Phase 2 complete; Phase 3 UI refinement in progress. API boundaries and authorization are covered by
@@ -64,6 +65,7 @@ deterministic Vitest tests. UI changes are code-verified below; browser visual r
 - Feature 2 Now Playing currently initializes its like control from `/api/library`; the brief initial unliked state before that request resolves is functional but could be refined with a dedicated favorite-state endpoint.
 - The existing share control shares the current page URL rather than a dedicated track URL when opened from Now Playing.
 - Smart playlist rules accept artist IDs or slugs; the editor does not yet provide artist autocomplete.
+- Social preview cards have not yet been inspected in Slack, Discord, WhatsApp, or Twitter/X link composers; production previews require a public HTTPS `NEXTAUTH_URL`.
 
 ## Deployment Blockers
 1. The repository now includes the user-preferences migration. The pre-existing database still needs a

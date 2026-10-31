@@ -65,7 +65,7 @@ export default async function DashboardPage() {
   return (
     <main className="mx-auto min-h-screen w-full max-w-7xl px-4 pb-6 sm:px-6">
       {/* Hero */}
-      <header className="relative mb-10 overflow-hidden rounded-[2rem] border border-border shadow-[var(--shadow-surface)]">
+      <header className="relative mb-10 overflow-hidden rounded-4xl border border-border shadow-(--shadow-surface)">
         <div
           className="absolute inset-0 opacity-90"
           style={{ backgroundImage: "var(--gradient-sunset)" }}
