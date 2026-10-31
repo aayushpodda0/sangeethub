@@ -145,7 +145,7 @@ function client(userId: string): ClientSocket {
 const once = <T = any>(socket: ClientSocket, event: string) =>
   new Promise<T>((resolve) => socket.once(event, resolve));
 
-const settle = (ms = 80) => new Promise((r) => setTimeout(r, ms));
+const settle = (ms = 200) => new Promise((r) => setTimeout(r, ms));
 
 async function joinBoth(roomCode = "ABC234") {
   const host = client("host");

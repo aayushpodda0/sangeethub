@@ -24,7 +24,8 @@ SangeetHub is **not** a serverless/static app. Party rooms use Socket.IO on a cu
 | `NEXTAUTH_SECRET` | yes | `openssl rand -base64 32`. The server **refuses to start** in production if this is missing, still the `.env.example` placeholder, or under 32 chars |
 | `PORT` | no | Default 3000 |
 | `APP_HOSTNAME` | no | Default `localhost`. Don't use `HOSTNAME` — hosts set that to a container id |
-| `SEED_ADMIN_PASSWORD` | only if seeding | Seeding with `NODE_ENV=production` refuses to run without it |
+| `SEED_ADMIN_PASSWORD` | only if seeding | Required when running the seed |
+| `SEED_LISTENER_PASSWORD` | only if seeding | Required when running the seed |
 
 ## First deploy
 
@@ -39,24 +40,32 @@ Optional local demo data: `npm run db:seed`. The seed requires both
 `SEED_ADMIN_PASSWORD` and `SEED_LISTENER_PASSWORD`; provide strong local-only values and
 never seed a production database with demo accounts.
 
-## Migrations — one-time setup required
+## Migrations
 
-The repository currently has **no committed `prisma/migrations` folder**, so `prisma migrate deploy`
-has nothing to apply. Create the baseline once, on your dev machine, and commit it:
+The repository includes a three-migration chain:
+
+1. `0_init` — the pre-preferences/pre-smart-playlists schema baseline, including the current
+   collaboration activity enum values.
+2. `20261021183000_add_user_music_preferences`
+3. `20261022160000_add_smart_playlists`
+
+The chain was verified with `prisma migrate deploy` against a fresh isolated PostgreSQL database.
+After that, every schema change is `npx prisma migrate dev --name <change>` locally and
+`npm run db:deploy` on the server.
+
+For an existing database that already contains the schema and the two feature changes, do not run
+`migrate deploy` or reset the database until the baseline has been tested against a staging clone.
+Take a backup, compare the live schema with `0_init`, and test the exact procedure on the clone.
+Only after that validation, mark the baseline as applied on the matching database:
 
 ```bash
-# Fresh dev database:
-npx prisma migrate dev --name init
-
-# OR, if your dev database was created with `prisma db push`, baseline it without resetting data:
-mkdir -p prisma/migrations/0_init
-npx prisma migrate diff --from-empty --to-schema-datamodel prisma/schema.prisma --script > prisma/migrations/0_init/migration.sql
 npx prisma migrate resolve --applied 0_init
+npm run db:deploy
 ```
 
-Then commit `prisma/migrations/`. After that, every schema change is `npx prisma migrate dev --name <change>`
-locally and `npm run db:deploy` on the server. The recent `PlaylistActivityType` enum additions
-(`COLLABORATOR_*`) must be included in whatever migration you create.
+Do not run those commands against production or an unknown database without a verified backup and
+staging result. If the database is not an exact match, stop and create a reviewed migration plan
+instead of forcing the migration history.
 
 ## Health check
 
@@ -83,3 +92,6 @@ location / {
 - No `Content-Security-Policy` yet (needs a nonce setup because `next-themes` injects an inline script) — see `PROJECT_STATUS.md`.
 - Signup and login are rate limited per process (10 attempts / 15 min per IP, per IP+email for login). Only trustworthy if your proxy sets `X-Forwarded-For` and clients can't reach the app directly.
 - Logs go to stdout/stderr; there is no log shipping or error tracking configured.
+- Before production, review and remediate the current production dependency audit findings
+  (`npm audit --omit=dev --audit-level=high`). Do not use `npm audit fix --force` without testing
+  the resulting Next.js/Prisma upgrades.

@@ -42,6 +42,8 @@ code-verified below; browser visual review remains manual.
   home sidebar, and the player bar. Playlist list/detail cover treatment and party current-track artwork
   remain visual follow-ups.
 - Run and fix the Playwright E2E suite (specs exist; never executed by the author of this audit).
+- Browser E2E currently stops during test collection unless `SEED_LISTENER_PASSWORD` is supplied
+  from the staging/local environment; no credential is committed.
 - Loading/empty/error-state pass verified in a browser on every page (implemented in code, not visually verified).
 
 ## Known Bugs
@@ -68,10 +70,16 @@ code-verified below; browser visual review remains manual.
 - Social preview cards have not yet been inspected in Slack, Discord, WhatsApp, or Twitter/X link composers; production previews require a public HTTPS `NEXTAUTH_URL`.
 
 ## Deployment Blockers
-1. The repository now includes the user-preferences migration. The pre-existing database still needs a
-   one-time migration baseline for older schema changes before a clean production `prisma migrate deploy`.
-2. Needs a host with a long-running Node process + WebSocket support + Postgres (not Vercel/serverless). See `docs/DEPLOYMENT.md`.
-3. Secrets: real `NEXTAUTH_SECRET` (server refuses to start otherwise), `NEXTAUTH_URL`, managed Postgres.
+1. The local database reports `0_init` as unapplied. An existing/staging database needs a reviewed,
+   backup-protected one-time baseline procedure before `prisma migrate deploy`; do not resolve it
+   against production until a staging clone is verified.
+2. Authenticated Playwright E2E has not passed because the required staging seed password was not
+   supplied. Run it against an isolated seeded database with `SEED_LISTENER_PASSWORD` set out of band.
+3. Needs a host with a long-running Node process + WebSocket support + Postgres (not Vercel/serverless). See `docs/DEPLOYMENT.md`.
+4. Staging secrets: real `NEXTAUTH_SECRET` (server refuses to start otherwise), `NEXTAUTH_URL`, and managed Postgres.
+5. `npm audit --omit=dev --audit-level=high` reports 8 production dependency vulnerabilities
+   (7 high, 1 critical). Remediation needs a reviewed dependency upgrade, especially the Next.js
+   upgrade outside the currently pinned range; `npm audit fix --force` was not run.
 
 ## Future Features (intentionally deferred)
 Smarter/ML recommendations, natural-language search, AI playlist generation, richer party features (host handoff, room expiry), PWA/offline,
