@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { Artwork } from "@/components/music/artwork";
 import { Input } from "@/components/ui/input";
 import { useDebouncedValue } from "@/lib/hooks/use-debounced-value";
 import { usePartySocket } from "@/lib/party/use-party-socket";
@@ -144,8 +145,18 @@ export function PartyRoom({ roomCode, currentUserId }: { roomCode: string; curre
       <section className="surface-card mb-6 p-5 sm:p-6">
         {currentTrack ? (
           <>
-            <p className="text-lg font-medium">{currentTrack.title}</p>
-            <p className="text-sm text-muted-foreground">{currentTrack.artistNames.join(", ")}</p>
+            <div className="flex items-center gap-3">
+              <Artwork
+                src={currentTrack.artworkUrl}
+                seed={currentTrack.id}
+                alt={`${currentTrack.title} artwork`}
+                className="size-14 rounded-xl"
+              />
+              <div className="min-w-0">
+                <p className="truncate text-lg font-medium">{currentTrack.title}</p>
+                <p className="truncate text-sm text-muted-foreground">{currentTrack.artistNames.join(", ")}</p>
+              </div>
+            </div>
             <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-muted">
               <div
                 className="h-full rounded-full bg-accent transition-[width]"

@@ -141,7 +141,7 @@ export function NowPlaying({ open, onClose }: { open: boolean; onClose: () => vo
                 labels={{ on: "Liked", off: "Like" }}
               />
               <AddToPlaylistMenu trackId={track.id} />
-              <ShareButton label="Share" />
+              <ShareButton label="Share" url={`/tracks/${track.id}`} />
             </div>
           </section>
 

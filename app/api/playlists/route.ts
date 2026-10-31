@@ -1,6 +1,7 @@
 import { apiError, apiSuccess } from "@/lib/api/response";
 import { getAuthSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
+import { playlistRules } from "@/lib/playlists/rules";
 import { createPlaylistSchema } from "@/lib/playlists/schemas";
 import { Prisma } from "@prisma/client";
 
@@ -39,6 +40,10 @@ export async function GET() {
       include: {
         owner: { select: { id: true, name: true, username: true } },
         folder: { select: { id: true, name: true } },
+        collaborations: {
+          where: userId ? { userId } : { userId: "__anonymous__" },
+          select: { permission: true },
+        },
         _count: { select: { tracks: true } },
       },
       orderBy: { updatedAt: "desc" },
@@ -59,6 +64,11 @@ export async function GET() {
         trackCount: p._count.tracks,
         owner: p.owner,
         isMine: userId === p.ownerId,
+        canAddTrack: playlistRules.canAddTrack(
+          userId === p.ownerId,
+          p.isCollaborative,
+          p.collaborations.length > 0,
+        ) && !p.isSmart,
         folder: p.folder,
       })),
     });

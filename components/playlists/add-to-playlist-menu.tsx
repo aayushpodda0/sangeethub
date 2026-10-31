@@ -9,13 +9,13 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useDismiss } from "@/lib/hooks/use-dismiss";
 
-type PlaylistOption = { id: string; name: string; isMine: boolean };
+type PlaylistOption = { id: string; name: string; isMine: boolean; canAddTrack?: boolean };
 
 async function fetchMine(): Promise<PlaylistOption[]> {
   const res = await fetch("/api/playlists");
   if (!res.ok) throw new Error("Couldn't load playlists");
   const body = (await res.json()) as { data: { playlists: PlaylistOption[] } };
-  return body.data.playlists.filter((p) => p.isMine);
+  return body.data.playlists.filter((p) => p.canAddTrack ?? p.isMine);
 }
 
 export function AddToPlaylistMenu({ trackId }: { trackId: string }) {

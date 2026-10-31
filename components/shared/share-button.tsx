@@ -5,13 +5,13 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 
-export function ShareButton({ label = "Share" }: { label?: string }) {
+export function ShareButton({ label = "Share", url }: { label?: string; url?: string }) {
   async function handleShare() {
-    const url = window.location.href;
+    const shareUrl = url ? new URL(url, window.location.origin).toString() : window.location.href;
 
     if (navigator.share) {
       try {
-        await navigator.share({ url });
+        await navigator.share({ url: shareUrl });
         return;
       } catch {
         // User cancelled the native share sheet, or it failed - fall through to clipboard copy.
@@ -19,7 +19,7 @@ export function ShareButton({ label = "Share" }: { label?: string }) {
     }
 
     try {
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(shareUrl);
       toast.success("Link copied to clipboard");
     } catch {
       toast.error("Couldn't copy the link. Please copy it from the address bar.");

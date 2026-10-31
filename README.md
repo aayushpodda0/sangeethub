@@ -202,13 +202,13 @@ order is driven by vote score, not insertion order.
   deployment blockers.
 - **`docs/DEPLOYMENT.md`** - hosting requirements (long-running Node + WebSocket + Postgres; not serverless),
   env vars, migrations, reverse-proxy config, health check.
-- Notable gaps today: the older pre-preferences schema still needs a one-time migration baseline
-  before a clean production `migrate deploy`, no CSP header,
+- Notable gaps today: the source local database still needs its reviewed one-time baseline procedure
+  (validated only on a disposable clone), no CSP header,
   playlist/profile data loaders still combine user/playlist persistence reads with catalog-shaped
   relations and should be split further if the provider must be enforced at every domain boundary.
 
 ## Legal note
 
-SangeetHub does not ship copyrighted music, artwork, or proprietary branding. All
-metadata, artwork, and audio previews in this repository are fictional or
-explicitly demo-safe, for development and portfolio purposes only.
+SangeetHub does not ship copyrighted music, artwork, or proprietary branding. Catalog metadata and
+artwork are fictional/demo data; preview URLs are development fixtures and must be replaced with
+assets whose licensing and attribution are verified before public deployment.

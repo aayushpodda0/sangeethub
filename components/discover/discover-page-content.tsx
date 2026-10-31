@@ -7,42 +7,8 @@ import { useState } from "react";
 import { Artwork } from "@/components/music/artwork";
 import { PlayTrackButton } from "@/components/player/play-track-button";
 import { cn, formatDuration } from "@/lib/utils";
+import { ACTIVITIES, LANGUAGES, MOODS } from "@/lib/music/taxonomy";
 import type { DiscoveryTrack } from "@/types/music";
-
-const MOODS = [
-  "FOCUS",
-  "WORKOUT",
-  "RELAX",
-  "TRAVEL",
-  "PARTY",
-  "SLEEP",
-  "HAPPY",
-  "SAD",
-  "ENERGETIC",
-  "CALM",
-] as const;
-const ACTIVITIES = [
-  "STUDY",
-  "GYM",
-  "COMMUTE",
-  "CODING",
-  "YOGA",
-  "RUNNING",
-  "MEDITATION",
-  "CELEBRATION",
-  "SLEEPING",
-] as const;
-const LANGUAGES = [
-  "HINDI",
-  "MARATHI",
-  "TAMIL",
-  "TELUGU",
-  "BENGALI",
-  "MALAYALAM",
-  "KANNADA",
-  "PUNJABI",
-  "ENGLISH",
-] as const;
 
 function titleCase(value: string) {
   return value.charAt(0) + value.slice(1).toLowerCase();

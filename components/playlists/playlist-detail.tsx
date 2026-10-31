@@ -8,6 +8,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { AddTrackSearch } from "@/components/playlists/add-track-search";
+import { Artwork } from "@/components/music/artwork";
 import { SmartPlaylistBuilder } from "@/components/playlists/smart-playlist-builder";
 import { PlaylistTrackRow } from "@/components/playlists/playlist-track-row";
 import { ShareButton } from "@/components/shared/share-button";
@@ -219,31 +220,39 @@ export function PlaylistDetail({ playlistId }: { playlistId: string }) {
   return (
     <main className="mx-auto min-h-screen w-full max-w-3xl px-4 py-6 sm:px-6">
       <div className="mb-2 flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">{playlist.name}</h1>
-          {playlist.description && <p className="mt-1 text-sm text-muted-foreground">{playlist.description}</p>}
-          <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
-            <span>
-              by{" "}
-              {playlist.isOwner ? (
-                "you"
-              ) : (
-                <Link href={`/profile/${playlist.owner.username}`} className="hover:underline">
-                  {playlist.owner.name}
-                </Link>
-              )}{" "}
-              • {playlist.tracks.length} tracks
-            </span>
-            {!playlist.isPublic && (
-              <span className="flex items-center gap-1">
-                <Lock className="size-3" /> Private
+        <div className="flex min-w-0 items-start gap-3">
+          <Artwork
+            src={playlist.coverUrl}
+            seed={playlist.id}
+            alt={`${playlist.name} artwork`}
+            className="size-16 shrink-0 rounded-xl"
+          />
+          <div className="min-w-0">
+            <h1 className="text-2xl font-semibold tracking-tight">{playlist.name}</h1>
+            {playlist.description && <p className="mt-1 text-sm text-muted-foreground">{playlist.description}</p>}
+            <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
+              <span>
+                by{" "}
+                {playlist.isOwner ? (
+                  "you"
+                ) : (
+                  <Link href={`/profile/${playlist.owner.username}`} className="hover:underline">
+                    {playlist.owner.name}
+                  </Link>
+                )}{" "}
+                • {playlist.tracks.length} tracks
               </span>
-            )}
-            {playlist.isCollaborative && (
-              <span className="flex items-center gap-1">
-                <Users className="size-3" /> Collaborative
-              </span>
-            )}
+              {!playlist.isPublic && (
+                <span className="flex items-center gap-1">
+                  <Lock className="size-3" /> Private
+                </span>
+              )}
+              {playlist.isCollaborative && (
+                <span className="flex items-center gap-1">
+                  <Users className="size-3" /> Collaborative
+                </span>
+              )}
+            </div>
           </div>
         </div>
 

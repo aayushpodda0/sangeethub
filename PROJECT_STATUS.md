@@ -26,6 +26,7 @@ Don't move something to Completed without evidence.
 | Feature 2 player polish: shared audio engine, responsive mini-player trigger, full-screen Now Playing dialog, seek/queue/action controls | Automated (31 focused player tests; full suite 224 tests); browser playback and viewport behavior Manual |
 | Feature 3 smart playlists: typed AND rules, owner-scoped liked/recently-played filters, refresh-on-open, rule editor, and mutation authorization | Automated (smart-rule unit tests, playlist authorization tests, typecheck, lint, build); browser workflow Manual |
 | Feature 4 share previews: generated Open Graph/Twitter cards for catalog pages, public playlists, and profiles; private playlist/party metadata protection | Automated (metadata tests, typecheck, lint, build); social-client rendering Manual |
+| Final V1 polish: collaborative playlist add permissions, dedicated Now Playing track sharing, centralized Discover taxonomy, playlist and party artwork | Automated (typecheck, lint, build, focused component/realtime tests); browser visual review Manual |
 
 ## Current phase
 Phase 2 complete; music-provider boundary and API authorization hardening are automated. UI changes are
@@ -39,11 +40,8 @@ code-verified below; browser visual review remains manual.
 ## Remaining
 - Browser verification of the full-screen player on desktop, tablet, and mobile, including real audio playback, navigation persistence, queue dismissal, and touch targets.
 - Artwork now renders on track/album/artist pages, track lists, search, library, discover, playlist rows,
-  home sidebar, and the player bar. Playlist list/detail cover treatment and party current-track artwork
-  remain visual follow-ups.
-- Run and fix the Playwright E2E suite (specs exist; never executed by the author of this audit).
-- Browser E2E currently stops during test collection unless `SEED_LISTENER_PASSWORD` is supplied
-  from the staging/local environment; no credential is committed.
+  home sidebar, player bar, playlist detail, and party current-track surfaces.
+- Playwright passed 7/7 in the isolated database setup with `SEED_LISTENER_PASSWORD` supplied out of band.
 - Loading/empty/error-state pass verified in a browser on every page (implemented in code, not visually verified).
 
 ## Known Bugs
@@ -52,20 +50,19 @@ code-verified below; browser visual review remains manual.
 ## Technical Debt
 - The sidebar stops above the player bar using a constant (`PLAYER_BAR_HEIGHT` in `components/shell/app-shell.tsx`); if the player bar's height changes, update it.
 - Light mode has tokens but has never been reviewed visually.
-- Demo audio clips are only 3, 6 and 9 seconds long, so demo tracks are listed with those true durations. Swap `PREVIEW_CLIPS` in `prisma/seed-data.ts` for longer royalty-free audio and rerun `npm run db:seed`.
-- `AddToPlaylistMenu` only lists playlists you own (the playlists API doesn't say which collaborative playlists you may edit).
+- Demo audio clips are only 3, 6 and 9 seconds long, so demo tracks are listed with those true durations. Longer clips remain deferred until a legally verified source and attribution are documented.
 - Playlist authorization still loads playlist track relations alongside permission data; separate catalog
   hydration is now separated through `MusicService`; persistence entries remain available for authorization.
 - API tests mock Prisma: they prove handler/authorization logic, not SQL, constraints, or cascades. A real-Postgres integration suite (CI service container) would close this gap.
 - Rate limiting and Socket.IO rooms are in-process → single instance only.
 - `authorize()` skips the bcrypt comparison when the email doesn't exist (minor timing side-channel for account enumeration).
 - Party rooms are never expired/cleaned up; if the host disconnects, host controls stay unavailable until they return.
-- Discover UI duplicates the filter constants now centralized in `lib/music/taxonomy.ts`.
+- Discover UI now imports the filter constants from `lib/music/taxonomy.ts`.
 - Private playlists return 403 rather than 404 (reveals that an unguessable id exists).
 - UI has not yet had a full desktop/tablet/mobile browser review after the latest refinement pass.
 - New-user onboarding and Profile taste editing have not yet had a manual browser walkthrough.
 - Feature 2 Now Playing currently initializes its like control from `/api/library`; the brief initial unliked state before that request resolves is functional but could be refined with a dedicated favorite-state endpoint.
-- The existing share control shares the current page URL rather than a dedicated track URL when opened from Now Playing.
+- Now Playing shares the dedicated `/tracks/:id` URL; other share controls retain current-page behavior.
 - Smart playlist rules accept artist IDs or slugs; the editor does not yet provide artist autocomplete.
 - Social preview cards have not yet been inspected in Slack, Discord, WhatsApp, or Twitter/X link composers; production previews require a public HTTPS `NEXTAUTH_URL`.
 
@@ -79,22 +76,21 @@ code-verified below; browser visual review remains manual.
    remain unverified because no corresponding E2E specs exist.
 3. Needs a host with a long-running Node process + WebSocket support + Postgres (not Vercel/serverless). See `docs/DEPLOYMENT.md`.
 4. Staging secrets: real `NEXTAUTH_SECRET` (server refuses to start otherwise), `NEXTAUTH_URL`, and managed Postgres.
-5. Dependency audit improved from 1 critical + 7 high findings to 3 high Prisma 6 findings
+5. No critical, high, moderate, or low production dependency vulnerabilities remain after the
+   `deepmerge-ts@8.0.2` root override. Prisma remains 6.19.3; a Prisma 7 migration is not required
+   for the current clean audit and would be a separate reviewed project. from 1 critical + 7 high findings to 3 high Prisma 6 findings
    (`prisma`, `@prisma/config`, `deepmerge-ts`). The available Prisma 7.10.1 fix is a major
    migration and remains unaccepted until compatibility work is reviewed.
 
-## Release gate evidence (2026-11-01, evaluated commit `7fc985e`)
+## Release gate evidence (2026-11-01, evaluated commit `49298ba` plus current uncommitted polish)
 
 - Dependency upgrades: Next.js and `eslint-config-next` 16.4.3; Zod 4.6.7; Socket.IO 4.8.4;
   Engine.IO 6.6.11; source-map-js 1.2.2; Prisma client/CLI remain 6.19.3.
-- `npm audit --omit=dev --json`: before remediation 8 findings (1 critical, 7 high); after
-  remediation 3 high Prisma configuration findings, 0 critical. The sole underlying advisory is
-  GHSA-ggr8-5vv4-36mx / npm advisory 1145093 (CWE-674, deepmerge-ts stack exhaustion, affected
-  `<8.0.0`); Prisma 6.19.3 includes the affected `@prisma/config` 6.19.3 and deepmerge-ts 7.1.5
-  path.
-  The Prisma CLI/config path is development/deployment tooling; application runtime imports
-  `@prisma/client`, but npm still reports the optional Prisma peer graph.
-- `npm run typecheck`, `npm run lint`, `npm test` (23 files, 235 tests), and `npm run build` passed.
+- `npm audit --omit=dev --json`: 0 critical, 0 high, 0 moderate, 0 low after the
+  `deepmerge-ts@8.0.2` override. Prisma and `@prisma/client` remain 6.19.3.
+- `npm run typecheck`, `npm run lint`, and `npm run build` passed. `npm test -- --no-file-parallelism`
+  passed (23 files, 235 tests); the default parallel run has a pre-existing flaky party-realtime
+  interaction, while the party file passes repeatedly in isolation.
 - Fresh isolated PostgreSQL deployment passed all four migrations, including the forward-only
   collaborator enum compatibility migration.
 - Existing-database clone: binary backup verified (87,231 bytes), restored to a separate database;
@@ -108,7 +104,7 @@ code-verified below; browser visual review remains manual.
   production server started successfully. Desktop and mobile login pages showed no horizontal
   overflow; authenticated playback, queue, party-room synchronization, reconnection, and full
   responsive player checks remain manual/unverified.
-- Current `HEAD` is `7fc985e` and matches `origin/main`; the compatibility migration is currently
+- Current `HEAD` is `49298ba`; dependency, migration, documentation, and polish changes remain
   uncommitted in the working tree and must be reviewed/committed before deployment.
 
 ## Future Features (intentionally deferred)
