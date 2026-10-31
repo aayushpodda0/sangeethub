@@ -118,7 +118,8 @@ See `.env.example`. At minimum:
 | `NEXTAUTH_URL` | Must match the URL you're actually running on |
 | `NEXTAUTH_SECRET` | Random secret for session signing (32+ chars). The production server refuses to start with a placeholder/short one |
 | `APP_HOSTNAME` | Optional, default `localhost` |
-| `SEED_ADMIN_PASSWORD` | Required only when seeding with `NODE_ENV=production` |
+| `SEED_ADMIN_PASSWORD` | Required when running the seed script |
+| `SEED_LISTENER_PASSWORD` | Required when running the seed script |
 
 ## Demo catalog
 
@@ -130,11 +131,16 @@ royalty-free sample clips, so tracks are 3-9 seconds long; see `prisma/seed-data
 
 ## Demo accounts (after seeding — development only)
 
-These have well-known passwords. Never seed demo data into a real production database
-(seeding with `NODE_ENV=production` refuses unless `SEED_ADMIN_PASSWORD` is set).
+The seed requires local-only credentials supplied through environment variables; no demo
+passwords are committed. In PowerShell:
 
-- Admin: `admin@sangeethub.local` / `Admin@12345`
-- Listener: `listener@sangeethub.local` / `Listener@12345`
+```powershell
+$env:SEED_ADMIN_PASSWORD = "choose-a-local-admin-password"
+$env:SEED_LISTENER_PASSWORD = "choose-a-local-listener-password"
+npm run db:seed
+```
+
+Use strong, unique values and never set these variables to production credentials.
 
 ## Scripts
 

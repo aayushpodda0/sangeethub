@@ -56,7 +56,7 @@ export async function DELETE(_request: Request, { params }: RouteParams) {
           playlistId: id,
           actorId: userId,
           type: "TRACK_REMOVED",
-          message: `Removed "${entry.track.title}"`,
+          message: `Removed "${access.trackCatalog.get(entry.track.id)?.title ?? entry.track.id}"`,
         },
       });
     });

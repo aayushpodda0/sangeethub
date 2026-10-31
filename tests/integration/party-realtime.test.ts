@@ -106,7 +106,18 @@ vi.mock("@/lib/db/prisma", () => {
       count: async ({ where }: Row) =>
         db.votes.filter((v) => v.queueItemId === where.queueItemId && v.voteType === where.voteType).length,
     },
-    track: { findUnique: async ({ where }: Row) => db.tracks.find((t) => t.id === where.id) ?? null },
+    track: {
+      findUnique: async ({ where }: Row) => db.tracks.find((t) => t.id === where.id) ?? null,
+      findMany: async ({ where }: Row) =>
+        db.tracks
+          .filter((track) => where.id.in.includes(track.id))
+          .map((track) => ({
+            ...track,
+            album: { title: "Test Album", artworkUrl: null },
+            artists: [{ artist: { name: "Test Artist" } }],
+            genres: [],
+          })),
+    },
     $transaction: async (fn: (tx: unknown) => unknown) => fn(prisma),
   };
   return { prisma };

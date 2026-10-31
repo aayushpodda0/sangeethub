@@ -1,7 +1,8 @@
 import { expect, test } from "@playwright/test";
 
 const DEMO_EMAIL = "listener@sangeethub.local";
-const DEMO_PASSWORD = "Listener@12345";
+const DEMO_PASSWORD = process.env.SEED_LISTENER_PASSWORD;
+if (!DEMO_PASSWORD) throw new Error("Set SEED_LISTENER_PASSWORD before running authenticated E2E tests.");
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/login");

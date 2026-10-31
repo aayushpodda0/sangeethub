@@ -1,4 +1,3 @@
-import { toDiscoveryTrack } from "@/lib/music/serializers";
 import type { PlaylistAccess } from "@/lib/playlists/authorization";
 import { smartRulesSchema } from "@/lib/playlists/schemas";
 
@@ -32,14 +31,18 @@ export function serializePlaylist(access: PlaylistAccess, viewerId: string | und
       permission: c.permission,
       canRemoveOthers: c.canRemoveOthers,
     })),
-    tracks: playlist.tracks.map((entry) => ({
+    tracks: playlist.tracks.flatMap((entry) => {
+      const track = access.trackCatalog.get(entry.track.id);
+      if (!track) return [];
+      return {
       playlistTrackId: entry.id,
       position: entry.position,
       addedAt: entry.addedAt,
       addedBy: entry.addedBy,
       canRemove: viewerId ? access.canRemoveTrack(entry.addedById) : false,
-      track: toDiscoveryTrack(entry.track),
-    })),
+      track,
+      };
+    }),
     activities: playlist.activities.map((activity) => ({
       id: activity.id,
       type: activity.type,

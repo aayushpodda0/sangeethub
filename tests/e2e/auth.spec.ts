@@ -1,8 +1,8 @@
 import { expect, test } from "@playwright/test";
 
-// Uses the demo listener account created by prisma/seed.ts.
 const DEMO_EMAIL = "listener@sangeethub.local";
-const DEMO_PASSWORD = "Listener@12345";
+const DEMO_PASSWORD = process.env.SEED_LISTENER_PASSWORD;
+if (!DEMO_PASSWORD) throw new Error("Set SEED_LISTENER_PASSWORD before running authenticated E2E tests.");
 
 test("signs in with the demo account and reaches the home dashboard", async ({ page }) => {
   await page.goto("/login");

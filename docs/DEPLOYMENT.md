@@ -35,8 +35,9 @@ npm run build               # next build
 npm start                   # production custom server (Next + Socket.IO)
 ```
 
-Optional demo data: `npm run db:seed`. **Don't seed a real production database** with demo accounts
-(the demo listener account has a known password). Seeding in production requires `SEED_ADMIN_PASSWORD`.
+Optional local demo data: `npm run db:seed`. The seed requires both
+`SEED_ADMIN_PASSWORD` and `SEED_LISTENER_PASSWORD`; provide strong local-only values and
+never seed a production database with demo accounts.
 
 ## Migrations — one-time setup required
 

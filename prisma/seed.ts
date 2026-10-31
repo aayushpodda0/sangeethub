@@ -6,12 +6,10 @@ import { ALBUMS, ALL_TRACKS, ARTISTS, GENRES, PLAYLISTS, PREVIEW_CLIPS } from ".
 const prisma = new PrismaClient();
 
 async function main() {
-  const DEV_ADMIN_PASSWORD = "Admin@12345";
-  const adminPassword = process.env.SEED_ADMIN_PASSWORD ?? DEV_ADMIN_PASSWORD;
-  if (process.env.NODE_ENV === "production" && adminPassword === DEV_ADMIN_PASSWORD) {
-    throw new Error(
-      "Refusing to seed a production database with the well-known demo admin password. Set SEED_ADMIN_PASSWORD.",
-    );
+  const adminPassword = process.env.SEED_ADMIN_PASSWORD;
+  const listenerPassword = process.env.SEED_LISTENER_PASSWORD;
+  if (!adminPassword || !listenerPassword) {
+    throw new Error("Set SEED_ADMIN_PASSWORD and SEED_LISTENER_PASSWORD before running the seed.");
   }
   const adminPasswordHash = await hash(adminPassword, 12);
 
@@ -35,7 +33,7 @@ async function main() {
         username: "demo_listener",
         name: "Demo Listener",
         role: Role.USER,
-        passwordHash: await hash("Listener@12345", 12),
+        passwordHash: await hash(listenerPassword, 12),
       },
     }),
   ]);
@@ -223,12 +221,8 @@ async function main() {
   }
 
   console.log("Seed complete");
-  console.log(
-    adminPassword === DEV_ADMIN_PASSWORD
-      ? `Admin login: ${adminUser.email} / ${DEV_ADMIN_PASSWORD} (dev only)`
-      : `Admin login: ${adminUser.email} (password from SEED_ADMIN_PASSWORD)`,
-  );
-  console.log(`Demo login: ${demoUser.email} / Listener@12345`);
+  console.log(`Admin login: ${adminUser.email} (password from SEED_ADMIN_PASSWORD)`);
+  console.log(`Demo listener login: ${demoUser.email} (password from SEED_LISTENER_PASSWORD)`);
 }
 
 main()
@@ -239,4 +233,3 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
-

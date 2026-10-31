@@ -2,6 +2,7 @@ import type { Prisma } from "@prisma/client";
 
 import { prisma } from "@/lib/db/prisma";
 import { similarityScore } from "@/lib/music/similarity";
+import { buildSmartPlaylistWhere } from "@/lib/music/smart-playlist-filters";
 import {
   TrackInclude,
   type DiscoverFilters,
@@ -17,6 +18,7 @@ import {
   type TrackPlaybackMetadata,
 } from "@/lib/music/provider";
 import { toDiscoveryTrack } from "@/lib/music/serializers";
+import type { SmartPlaylistRules } from "@/lib/playlists/schemas";
 
 export class MusicService implements MusicProvider {
   readonly name: string = "prisma";
@@ -53,10 +55,10 @@ export class MusicService implements MusicProvider {
 
   async getTracksByIds(trackIds: string[]): Promise<ProviderTrack[]> {
     if (trackIds.length === 0) return [];
-    const tracks = await prisma.track.findMany({
+    const tracks = (await prisma.track.findMany({
       where: { id: { in: trackIds } },
       include: TrackInclude,
-    });
+    })) ?? [];
     const byId = new Map(tracks.map((track) => [track.id, toDiscoveryTrack(track)]));
     return trackIds.flatMap((id) => {
       const track = byId.get(id);
@@ -222,6 +224,16 @@ export class MusicService implements MusicProvider {
       take: limit,
     });
     return tracks;
+  }
+
+  async getSmartPlaylistTracks(rules: SmartPlaylistRules, userId: string, limit = 200): Promise<ProviderTrack[]> {
+    const tracks = await prisma.track.findMany({
+      where: buildSmartPlaylistWhere(rules, userId),
+      include: TrackInclude,
+      orderBy: [{ releaseDate: "desc" }, { popularity: "desc" }, { title: "asc" }],
+      take: limit,
+    });
+    return tracks.map(toDiscoveryTrack);
   }
 }
 

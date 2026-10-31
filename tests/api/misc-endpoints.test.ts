@@ -19,6 +19,7 @@ import { GET as recommendations } from "@/app/api/recommendations/route";
 import { POST as createRoom } from "@/app/api/party/route";
 import { GET as getRoom } from "@/app/api/party/[roomCode]/route";
 import { GET as search } from "@/app/api/search/route";
+import { GET as getTrack } from "@/app/api/tracks/[trackId]/route";
 import { GET as getPreferences, PUT as updatePreferences } from "@/app/api/preferences/route";
 import { POST as skipPreferences } from "@/app/api/preferences/skip/route";
 
@@ -36,6 +37,24 @@ describe("GET /api/discover input validation", () => {
       expect(res.status).toBe(400);
     }
     expect(prismaMock.track.findMany.mock.calls).toHaveLength(0);
+  });
+
+  describe("catalog and recommendation boundaries", () => {
+    it("returns 404 for a missing track instead of exposing a database error", async () => {
+      prismaMock.track.findUnique.mockResolvedValue(null);
+      const res = await getTrack(jsonRequest("/api/tracks/missing", "GET"), routeParams({ trackId: "missing" }));
+      expect(res.status).toBe(404);
+      expect(await res.json()).toEqual({
+        error: { code: "TRACK_NOT_FOUND", message: "That track doesn't exist.", details: undefined },
+      });
+    });
+
+    it("rejects recommendation requests without a session", async () => {
+      as(null);
+      const res = await recommendations();
+      expect(res.status).toBe(401);
+      expect(prismaMock.favoriteTrack.findMany.mock.calls).toHaveLength(0);
+    });
   });
 
   it("passes valid filters through to the query", async () => {

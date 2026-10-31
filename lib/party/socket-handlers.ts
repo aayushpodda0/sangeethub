@@ -50,25 +50,30 @@ async function loadQueue(roomId: string, viewerUserId: string): Promise<PartyQue
   const items = await prisma.partyQueueItem.findMany({
     where: { roomId },
     include: {
-      track: { include: { artists: { include: { artist: true } } } },
       addedBy: { select: { name: true, username: true } },
       votes: { where: { userId: viewerUserId }, select: { voteType: true } },
     },
     orderBy: [{ voteScore: "desc" }, { position: "asc" }],
   });
+  const tracks = await musicService.getTracksByIds(items.map((item) => item.trackId));
+  const trackById = new Map(tracks.map((track) => [track.id, track]));
 
-  return items.map((item) => ({
-    id: item.id,
-    trackId: item.trackId,
-    trackTitle: item.track.title,
-    artistNames: item.track.artists.map((a) => a.artist.name),
-    durationSeconds: item.track.durationSeconds,
-    previewUrl: item.track.previewUrl,
-    addedById: item.addedById,
-    addedByName: item.addedBy.name ?? item.addedBy.username,
-    voteScore: item.voteScore,
-    myVote: item.votes[0] ? toClientVote(item.votes[0].voteType) : null,
-  }));
+  return items.flatMap((item) => {
+    const track = trackById.get(item.trackId);
+    if (!track) return [];
+    return [{
+      id: item.id,
+      trackId: item.trackId,
+      trackTitle: track.title,
+      artistNames: track.artistNames,
+      durationSeconds: track.durationSeconds,
+      previewUrl: track.previewUrl,
+      addedById: item.addedById,
+      addedByName: item.addedBy.name ?? item.addedBy.username,
+      voteScore: item.voteScore,
+      myVote: item.votes[0] ? toClientVote(item.votes[0].voteType) : null,
+    }];
+  });
 }
 
 async function broadcastQueue(

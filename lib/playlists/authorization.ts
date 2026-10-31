@@ -1,8 +1,11 @@
 import { prisma } from "@/lib/db/prisma";
+import { musicService } from "@/lib/music/service";
+import type { ProviderTrack } from "@/lib/music/provider";
 import { playlistRules } from "@/lib/playlists/rules";
 
 export type PlaylistAccess = {
   playlist: NonNullable<Awaited<ReturnType<typeof loadPlaylist>>>;
+  trackCatalog: Map<string, ProviderTrack>;
   isOwner: boolean;
   collaboration: { permission: "CONTRIBUTOR" | "MODERATOR"; canRemoveOthers: boolean } | null;
   canView: boolean;
@@ -13,8 +16,8 @@ export type PlaylistAccess = {
   canRemoveTrack: (addedById: string) => boolean;
 };
 
-function loadPlaylist(playlistId: string) {
-  return prisma.playlist.findUnique({
+async function loadPlaylist(playlistId: string) {
+  const playlist = await prisma.playlist.findUnique({
     where: { id: playlistId },
     include: {
       owner: { select: { id: true, name: true, username: true } },
@@ -26,13 +29,7 @@ function loadPlaylist(playlistId: string) {
         orderBy: { position: "asc" },
         include: {
           addedBy: { select: { id: true, name: true, username: true } },
-          track: {
-            include: {
-              album: true,
-              artists: { include: { artist: true } },
-              genres: { include: { genre: true } },
-            },
-          },
+          track: { select: { id: true } },
         },
       },
       activities: {
@@ -42,6 +39,9 @@ function loadPlaylist(playlistId: string) {
       },
     },
   });
+  if (!playlist) return null;
+
+  return playlist;
 }
 
 /**
@@ -55,6 +55,7 @@ export async function getPlaylistAccess(
 ): Promise<PlaylistAccess | null> {
   const playlist = await loadPlaylist(playlistId);
   if (!playlist) return null;
+  const tracks = await musicService.getTracksByIds(playlist.tracks.map((entry) => entry.track.id));
 
   const isOwner = userId !== undefined && playlist.ownerId === userId;
   const collaborationRow = userId
@@ -71,6 +72,7 @@ export async function getPlaylistAccess(
 
   return {
     playlist,
+    trackCatalog: new Map(tracks.map((track) => [track.id, track])),
     isOwner,
     collaboration,
     canView,

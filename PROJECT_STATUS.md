@@ -28,8 +28,8 @@ Don't move something to Completed without evidence.
 | Feature 4 share previews: generated Open Graph/Twitter cards for catalog pages, public playlists, and profiles; private playlist/party metadata protection | Automated (metadata tests, typecheck, lint, build); social-client rendering Manual |
 
 ## Current phase
-Phase 2 complete; Phase 3 UI refinement in progress. API boundaries and authorization are covered by
-deterministic Vitest tests. UI changes are code-verified below; browser visual review remains manual.
+Phase 2 complete; music-provider boundary and API authorization hardening are automated. UI changes are
+code-verified below; browser visual review remains manual.
 
 ## In progress
 - UI polish: shared tokens, focus states, artwork fallback treatment, search, library, playlists, home,
@@ -53,7 +53,7 @@ deterministic Vitest tests. UI changes are code-verified below; browser visual r
 - Demo audio clips are only 3, 6 and 9 seconds long, so demo tracks are listed with those true durations. Swap `PREVIEW_CLIPS` in `prisma/seed-data.ts` for longer royalty-free audio and rerun `npm run db:seed`.
 - `AddToPlaylistMenu` only lists playlists you own (the playlists API doesn't say which collaborative playlists you may edit).
 - Playlist authorization still loads playlist track relations alongside permission data; separate catalog
-  hydration is a future service-boundary cleanup.
+  hydration is now separated through `MusicService`; persistence entries remain available for authorization.
 - API tests mock Prisma: they prove handler/authorization logic, not SQL, constraints, or cascades. A real-Postgres integration suite (CI service container) would close this gap.
 - Rate limiting and Socket.IO rooms are in-process → single instance only.
 - `authorize()` skips the bcrypt comparison when the email doesn't exist (minor timing side-channel for account enumeration).

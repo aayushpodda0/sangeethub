@@ -1,5 +1,6 @@
 import type { Activity, LanguageCode, Mood, Prisma } from "@prisma/client";
 import type { DiscoveryTrack } from "@/types/music";
+import type { SmartPlaylistRules } from "@/lib/playlists/schemas";
 
 export type ProviderTrack = DiscoveryTrack;
 export type TrackSummary = Pick<ProviderTrack, "id" | "title">;
@@ -62,4 +63,5 @@ export interface MusicProvider {
     excludedTrackIds: string[],
     limit?: number,
   ): Promise<RecommendationCandidate[]>;
+  getSmartPlaylistTracks(rules: SmartPlaylistRules, userId: string, limit?: number): Promise<ProviderTrack[]>;
 }
