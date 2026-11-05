@@ -1,5 +1,10 @@
 # SangeetHub
 
+> **Deployment status:** Not deployed from this repository. No live URL, hosting
+> provider configuration, CI/CD deployment workflow, or production environment
+> configuration is committed. Set the live URL and platform in the deployment
+> section below after the first controlled deployment.
+
 A dark-first music discovery and streaming-style web app built around three ideas:
 regional/multilingual discovery, **explainable** recommendations (every suggestion says
 *why*), and real-time social listening.
@@ -127,7 +132,8 @@ See `.env.example`. At minimum:
 and gives the demo listener some history, likes and follows so recommendations and insights are populated on first login.
 It is safe to re-run: catalog rows are updated in place and playlists are only ever appended to.
 Cover art is generated SVG (`npm run artwork:generate` rewrites `public/artwork`, deterministically). Demo audio is short
-royalty-free sample clips, so tracks are 3-9 seconds long; see `prisma/seed-data.ts` to change that.
+development sample clips, so tracks are 3-9 seconds long; verify licensing and attribution before using any
+audio in a public deployment.
 
 ## Demo accounts (after seeding — development only)
 
@@ -196,13 +202,79 @@ position as `playbackPosition + elapsed-time-since-startedAt` (see
 `lib/party/playback-state.ts`), with periodic host heartbeats to correct drift. Queue
 order is driven by vote score, not insertion order.
 
+## Deployment
+
+### Current deployment record
+
+| Item | Current value |
+|---|---|
+| Live deployment URL | `<SET_AFTER_DEPLOYMENT>` |
+| Platform | Not detected or configured in this repository |
+| Recommended architecture | One persistent Node.js 20+ application instance with managed PostgreSQL |
+| WebSocket transport | Socket.IO at `/api/socket`, proxied with WebSocket upgrade support |
+| Health check | `GET /api/health` |
+| Current deployment decision | Not verified / do not treat as production-ready from repository evidence alone |
+
+SangeetHub must run as a long-lived Node process because `server.ts` serves Next.js
+and Socket.IO from the same HTTP server. Do not deploy the current architecture to a
+serverless-only platform such as Vercel, Netlify, Cloudflare Pages, or AWS Lambda.
+Use a persistent Node host such as a VM, container service, Render, Railway, Fly.io,
+or DigitalOcean App Platform, with a managed PostgreSQL database. Keep the first
+deployment single-instance: rate limiting and party-room state are in-process.
+
+### Required production environment
+
+Set these in the hosting provider's secret/environment configuration. Do not commit
+`.env`, passwords, or production connection strings.
+
+| Variable | Required | Production requirement |
+|---|---:|---|
+| `DATABASE_URL` | Yes | Managed PostgreSQL connection string for the production database |
+| `NEXTAUTH_URL` | Yes | Exact public HTTPS origin, for example `https://music.example.com` |
+| `NEXTAUTH_SECRET` | Yes | Random secret of at least 32 characters; never reuse a public/example value |
+| `PORT` | No | Host-provided port, otherwise defaults to `3000` |
+| `APP_HOSTNAME` | No | Bind hostname supplied by the host; defaults to `localhost` |
+| `SEED_ADMIN_PASSWORD` | No | Only for a deliberate non-production seed operation |
+| `SEED_LISTENER_PASSWORD` | No | Only for a deliberate non-production seed operation |
+
+The production server refuses to start when required database/auth configuration is
+missing or the Auth.js secret is a known placeholder or too short.
+
+### Database migration and seed strategy
+
+1. Provision a managed PostgreSQL database and take a backup before changing an
+   existing database.
+2. Run `npm ci` and `npm run db:deploy` during the release process. The committed
+   migration chain currently contains four migrations:
+   `0_init`, `20261021183000_add_user_music_preferences`,
+   `20261022160000_add_smart_playlists`, and
+   `20261101040000_add_collaborator_activity_values`.
+3. Run `npm run build`, then start the custom server with `npm start`.
+4. Do not run `npm run db:seed` against production by default. Seed only an isolated
+   development/staging database using strong credentials supplied through
+   `SEED_ADMIN_PASSWORD` and `SEED_LISTENER_PASSWORD`, never values committed to Git.
+5. If an existing database has an unresolved baseline, do not run
+   `prisma migrate resolve --applied 0_init` until a verified backup and disposable
+   clone have proved that the schema matches the baseline. See
+   [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
+
+### Production deployment checklist
+
+See the complete, evidence-based checklist in
+[docs/PRODUCTION-VERIFICATION.md](docs/PRODUCTION-VERIFICATION.md). At minimum,
+verify the public HTTPS URL, Auth.js configuration, database migration status,
+`GET /api/health`, signup/sign-in/sign-out, search, playback, playlists,
+collaboration permissions, party-room synchronization, queue voting, mobile layout,
+private-resource access controls, and a clean browser console.
+
 ## Status, deployment, known gaps
 
 - **`PROJECT_STATUS.md`** - single source of truth: what's done and verified, known bugs, technical debt,
   deployment blockers.
 - **`docs/DEPLOYMENT.md`** - hosting requirements (long-running Node + WebSocket + Postgres; not serverless),
   env vars, migrations, reverse-proxy config, health check.
-- Notable gaps today: the source local database still needs its reviewed one-time baseline procedure
+- Notable gaps today: this repository has no recorded live deployment/platform,
+  the source local database still needs its reviewed one-time baseline procedure
   (validated only on a disposable clone), no CSP header,
   playlist/profile data loaders still combine user/playlist persistence reads with catalog-shaped
   relations and should be split further if the provider must be enforced at every domain boundary.
