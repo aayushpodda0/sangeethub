@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useState } from "react";
+import { RotateCcw } from "lucide-react";
 
 import { Artwork } from "@/components/music/artwork";
 import { PlayTrackButton } from "@/components/player/play-track-button";
@@ -76,7 +77,7 @@ export function DiscoverPageContent({ independentArtists, languageCounts }: Prop
 
   const hasFilter = Boolean(mood || activity || language);
 
-  const { data: tracks, isFetching } = useQuery({
+  const { data: tracks, isFetching, isError, error } = useQuery({
     queryKey: ["discover", mood, activity, language],
     queryFn: () =>
       fetchDiscover({
@@ -84,7 +85,6 @@ export function DiscoverPageContent({ independentArtists, languageCounts }: Prop
         activity: activity ?? undefined,
         language: language ?? undefined,
       }),
-    enabled: hasFilter,
   });
 
   return (
@@ -100,11 +100,27 @@ export function DiscoverPageContent({ independentArtists, languageCounts }: Prop
           <ChipRow label="Activity" options={ACTIVITIES} value={activity} onChange={setActivity} />
           <ChipRow label="Language" options={LANGUAGES} value={language} onChange={setLanguage} />
 
-          {!hasFilter && (
-            <p className="py-12 text-center text-sm text-muted-foreground">
-              Pick a mood, activity, or language to explore the catalog.
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <p className="text-sm text-muted-foreground">
+              {hasFilter
+                ? "Showing tracks that match your filters."
+                : "Explore the catalog by mood, activity, or language."}
             </p>
-          )}
+            {hasFilter && (
+              <button
+                type="button"
+                onClick={() => {
+                  setMood(null);
+                  setActivity(null);
+                  setLanguage(null);
+                }}
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1.5 text-xs font-medium text-accent hover:bg-accent/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              >
+                <RotateCcw className="size-3.5" aria-hidden />
+                Reset
+              </button>
+            )}
+          </div>
 
           {hasFilter && isFetching && (
             <ul className="space-y-2">
@@ -114,13 +130,22 @@ export function DiscoverPageContent({ independentArtists, languageCounts }: Prop
             </ul>
           )}
 
-          {hasFilter && !isFetching && tracks && tracks.length === 0 && (
+          {!isFetching && isError && (
+            <p
+              className="rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive"
+              role="alert"
+            >
+              {error instanceof Error ? error.message : "Couldn't load discovery results."}
+            </p>
+          )}
+
+          {!isFetching && !isError && tracks && tracks.length === 0 && (
             <p className="py-12 text-center text-sm text-muted-foreground">
               No tracks match that combination yet.
             </p>
           )}
 
-          {hasFilter && !isFetching && tracks && tracks.length > 0 && (
+          {!isFetching && !isError && tracks && tracks.length > 0 && (
             <ul className="space-y-1">
               {tracks.map((track) => (
                 <li

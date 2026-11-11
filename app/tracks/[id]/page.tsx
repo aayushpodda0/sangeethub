@@ -100,7 +100,13 @@ export default async function TrackPage({ params }: TrackPageProps) {
         <Facts label="Genre" items={track.genreNames} />
         <Facts label="Mood" items={track.moods.map(titleCase)} />
         <Facts label="Good for" items={track.activities.map(titleCase)} />
-        <Facts label="Length" items={[formatDuration(track.durationSeconds)]} />
+        <Facts
+          label={track.durationSeconds <= 10 ? "Demo preview length" : "Length"}
+          items={[
+            formatDuration(track.durationSeconds),
+            ...(track.durationSeconds <= 10 ? ["Short clip"] : []),
+          ]}
+        />
       </dl>
 
       {similar.length > 0 && (

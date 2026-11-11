@@ -27,6 +27,7 @@ Don't move something to Completed without evidence.
 | Feature 3 smart playlists: typed AND rules, owner-scoped liked/recently-played filters, refresh-on-open, rule editor, and mutation authorization | Automated (smart-rule unit tests, playlist authorization tests, typecheck, lint, build); browser workflow Manual |
 | Feature 4 share previews: generated Open Graph/Twitter cards for catalog pages, public playlists, and profiles; private playlist/party metadata protection | Automated (metadata tests, typecheck, lint, build); social-client rendering Manual |
 | Final V1 polish: collaborative playlist add permissions, dedicated Now Playing track sharing, centralized Discover taxonomy, playlist and party artwork | Automated (typecheck, lint, build, focused component/realtime tests); browser visual review Manual |
+| Stage 1/2 UI consistency pass: default Discover results/reset/error state, artwork-led recommendation and playlist cards, queue artwork, actionable library empties, insights hierarchy, player loading announcement, short demo-preview labeling | Automated (typecheck, lint, affected component/player tests); browser responsive review Unverified |
 
 ## Current phase
 Phase 2 complete; music-provider boundary and API authorization hardening are automated. UI changes are
@@ -60,6 +61,10 @@ code-verified below; browser visual review remains manual.
 - Discover UI now imports the filter constants from `lib/music/taxonomy.ts`.
 - Private playlists return 403 rather than 404 (reveals that an unguessable id exists).
 - UI has not yet had a full desktop/tablet/mobile browser review after the latest refinement pass.
+- The Stage 1/2 refinement pass is implemented, but browser screenshots and console/network inspection remain unverified because no browser page was available in the current session.
+- Current validation: typecheck and lint pass; affected UI/player tests pass (37 tests). The full
+  Vitest run remains affected by the existing Socket.IO integration timeouts (224 passed, 11 timed
+  out), and the production build is blocked by a Windows/OneDrive `.next` directory lock.
 - New-user onboarding and Profile taste editing have not yet had a manual browser walkthrough.
 - Feature 2 Now Playing currently initializes its like control from `/api/library`; the brief initial unliked state before that request resolves is functional but could be refined with a dedicated favorite-state endpoint.
 - Now Playing shares the dedicated `/tracks/:id` URL; other share controls retain current-page behavior.

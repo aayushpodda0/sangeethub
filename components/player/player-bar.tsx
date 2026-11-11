@@ -77,6 +77,7 @@ export function PlayerBar({ onExpand }: { onExpand: () => void }) {
       className="fixed inset-x-0 bottom-(--bottom-nav-h,0px) z-50 md:bottom-0 border-t border-border bg-card/95 backdrop-blur supports-backdrop-filter:bg-card/80"
       role="region"
       aria-label="Now playing"
+      aria-busy={isLoading}
     >
       {error && (
         <p
@@ -162,6 +163,7 @@ export function PlayerBar({ onExpand }: { onExpand: () => void }) {
             >
               {isPlaying ? <Pause className="size-5" /> : <Play className="size-5" />}
             </Button>
+            {isLoading && <span className="sr-only" role="status">Loading audio</span>}
             <Button variant="ghost" size="icon" aria-label="Next track" onClick={playNext}>
               <SkipForward className="size-5" />
             </Button>

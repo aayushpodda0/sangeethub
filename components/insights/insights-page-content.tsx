@@ -52,7 +52,7 @@ function BarList({ items }: { items: { label: string; value: number }[] }) {
 
 function StatCard({ icon: Icon, label, value }: { icon: typeof Clock; label: string; value: string }) {
   return (
-    <div className="rounded-xl border border-border bg-card p-4">
+    <div className="surface-card p-4">
       <Icon className="mb-2 size-5 text-accent" aria-hidden />
       <p className="text-xl font-semibold">{value}</p>
       <p className="text-xs text-muted-foreground">{label}</p>
@@ -91,11 +91,16 @@ export function InsightsPageContent() {
 
   if (data.totalPlays === 0) {
     return (
-      <main className="mx-auto min-h-screen w-full max-w-4xl px-4 py-6 sm:px-6">
-        <h1 className="mb-4 text-2xl font-semibold tracking-tight">Your listening insights</h1>
-        <p className="py-12 text-center text-sm text-muted-foreground">
-          Play a few tracks and your insights will show up here.
-        </p>
+      <main className="page-shell mx-auto min-h-screen w-full max-w-4xl px-4 sm:px-6">
+        <p className="eyebrow">Your listening</p>
+        <h1 className="font-display mt-2 text-3xl font-medium tracking-tight sm:text-4xl">
+          Insights
+        </h1>
+        <div className="mt-8 rounded-2xl border border-dashed border-border px-4 py-12 text-center">
+          <p className="text-sm text-muted-foreground">
+            Play a few tracks and your insights will show up here.
+          </p>
+        </div>
       </main>
     );
   }
@@ -103,9 +108,10 @@ export function InsightsPageContent() {
   const maxDayPlays = Math.max(...data.playsByDay.map((d) => d.plays), 1);
 
   return (
-    <main className="mx-auto min-h-screen w-full max-w-4xl px-4 py-6 sm:px-6">
-      <h1 className="mb-1 text-2xl font-semibold tracking-tight">Your listening insights</h1>
-      <p className="mb-6 text-sm text-muted-foreground">Only visible to you.</p>
+    <main className="page-shell mx-auto min-h-screen w-full max-w-4xl px-4 sm:px-6">
+      <p className="eyebrow">Your listening</p>
+      <h1 className="font-display mt-2 text-3xl font-medium tracking-tight sm:text-4xl">Insights</h1>
+      <p className="mb-7 mt-2 text-sm text-muted-foreground">Only visible to you.</p>
 
       <div className="mb-8 grid gap-3 sm:grid-cols-3">
         <StatCard icon={Clock} label="Total listening time" value={formatDuration(data.totalListeningSeconds)} />
@@ -117,7 +123,7 @@ export function InsightsPageContent() {
         />
       </div>
 
-      <section className="mb-8 rounded-xl border border-border bg-card p-4">
+      <section className="surface-card mb-8 p-4">
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
           This week
         </h2>
@@ -138,7 +144,7 @@ export function InsightsPageContent() {
         </div>
       </section>
 
-      <section className="mb-8 rounded-xl border border-border bg-card p-4">
+      <section className="surface-card mb-8 p-4">
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
           This month
         </h2>
@@ -148,28 +154,28 @@ export function InsightsPageContent() {
       </section>
 
       <div className="grid gap-6 sm:grid-cols-2">
-        <section className="rounded-xl border border-border bg-card p-4">
+        <section className="surface-card p-4">
           <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
             Top artists
           </h2>
           <BarList items={data.topArtists.map((a) => ({ label: a.name, value: a.plays }))} />
         </section>
 
-        <section className="rounded-xl border border-border bg-card p-4">
+        <section className="surface-card p-4">
           <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
             Top genres
           </h2>
           <BarList items={data.topGenres.map((g) => ({ label: g.name, value: g.plays }))} />
         </section>
 
-        <section className="rounded-xl border border-border bg-card p-4">
+        <section className="surface-card p-4">
           <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
             Top languages
           </h2>
           <BarList items={data.topLanguages.map((l) => ({ label: l.language, value: l.plays }))} />
         </section>
 
-        <section className="rounded-xl border border-border bg-card p-4">
+        <section className="surface-card p-4">
           <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
             Top tracks
           </h2>

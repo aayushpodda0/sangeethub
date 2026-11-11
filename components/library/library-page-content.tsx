@@ -146,11 +146,18 @@ export function LibraryPageContent() {
           </div>
 
           {filteredLikedTracks.length === 0 ? (
-            <p className="py-12 text-center text-sm text-muted-foreground">
-              {data.likedTracks.length === 0
-                ? "No liked songs yet."
-                : "No matches for that filter."}
-            </p>
+            <div className="rounded-2xl border border-dashed border-border px-4 py-10 text-center">
+              <p className="text-sm text-muted-foreground">
+                {data.likedTracks.length === 0
+                  ? "No liked songs yet."
+                  : "No matches for that filter."}
+              </p>
+              {data.likedTracks.length === 0 && (
+                <Button asChild variant="outline" size="sm" className="mt-4">
+                  <Link href="/discover">Explore music</Link>
+                </Button>
+              )}
+            </div>
           ) : (
             <ul className="space-y-1">
               {filteredLikedTracks.map(({ track }) => (
@@ -196,7 +203,12 @@ export function LibraryPageContent() {
 
       {tab === "albums" &&
         (data.savedAlbums.length === 0 ? (
-          <p className="py-12 text-center text-sm text-muted-foreground">No saved albums yet.</p>
+          <div className="rounded-2xl border border-dashed border-border px-4 py-10 text-center">
+            <p className="text-sm text-muted-foreground">No saved albums yet.</p>
+            <Button asChild variant="outline" size="sm" className="mt-4">
+              <Link href="/search">Find an album</Link>
+            </Button>
+          </div>
         ) : (
           <ul className="grid gap-3 sm:grid-cols-2">
             {data.savedAlbums.map(({ album }) => (
@@ -224,9 +236,12 @@ export function LibraryPageContent() {
 
       {tab === "artists" &&
         (data.followedArtists.length === 0 ? (
-          <p className="py-12 text-center text-sm text-muted-foreground">
-            Not following any artists yet.
-          </p>
+          <div className="rounded-2xl border border-dashed border-border px-4 py-10 text-center">
+            <p className="text-sm text-muted-foreground">Not following any artists yet.</p>
+            <Button asChild variant="outline" size="sm" className="mt-4">
+              <Link href="/discover">Discover artists</Link>
+            </Button>
+          </div>
         ) : (
           <ul className="grid gap-3 sm:grid-cols-2">
             {data.followedArtists.map(({ artist }) => (
@@ -265,9 +280,12 @@ export function LibraryPageContent() {
             </div>
           )}
           {data.recentlyPlayed.length === 0 ? (
-            <p className="py-12 text-center text-sm text-muted-foreground">
-              No listening history yet.
-            </p>
+            <div className="rounded-2xl border border-dashed border-border px-4 py-10 text-center">
+              <p className="text-sm text-muted-foreground">No listening history yet.</p>
+              <Button asChild variant="outline" size="sm" className="mt-4">
+                <Link href="/home">Start listening</Link>
+              </Button>
+            </div>
           ) : (
             <ul className="space-y-1">
               {data.recentlyPlayed.map(({ track, playedAt }, index) => (

@@ -47,11 +47,11 @@ export default async function DashboardPage() {
     await recommendationService.getTrackRecommendations(recommendationContext);
   const recommendedTrackIds = recommendationResults.slice(0, 4).map((r) => r.trackId);
   const recommendedTracks = await musicService.getTracksByIds(recommendedTrackIds);
-  const trackTitleById = new Map(recommendedTracks.map((t) => [t.id, t.title]));
+  const recommendedTrackById = new Map(recommendedTracks.map((track) => [track.id, track]));
 
   const recommendationCards = recommendationResults.slice(0, 4).map((r) => ({
     trackId: r.trackId,
-    trackTitle: trackTitleById.get(r.trackId) ?? "",
+    track: recommendedTrackById.get(r.trackId),
     ...r.explanation,
   }));
 
@@ -92,22 +92,34 @@ export default async function DashboardPage() {
         </div>
       </header>
 
-      {recommendationCards.length > 0 && (
+      {recommendationCards.some((card) => card.track) && (
         <section className="mb-10">
           <h2 className="font-display text-2xl font-medium">Made for you</h2>
           <div className="mt-4 grid grid-cols-[repeat(auto-fit,minmax(15rem,1fr))] gap-3">
-            {recommendationCards.map((card) => (
+            {recommendationCards.filter((card) => card.track).map((card) => (
               <Link
                 key={card.trackId}
                 href={`/tracks/${card.trackId}`}
-                className="group surface-card rounded-xl border-l-2 border-accent p-4 transition hover:-translate-y-0.5 hover:bg-muted"
+                className="group surface-card overflow-hidden rounded-xl border-l-2 border-accent transition hover:-translate-y-0.5 hover:bg-muted"
               >
-                <p className="truncate text-sm font-medium group-hover:text-accent">
-                  {card.trackTitle}
-                </p>
-                <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
-                  {card.detail}
-                </p>
+                <Artwork
+                  src={card.track!.artworkUrl}
+                  seed={card.trackId}
+                  alt=""
+                  decorative
+                  className="aspect-2/1 w-full rounded-none"
+                />
+                <div className="p-4">
+                  <p className="truncate text-sm font-medium group-hover:text-accent">
+                    {card.track!.title}
+                  </p>
+                  <p className="mt-1 truncate text-xs text-muted-foreground">
+                    {card.track!.artistNames.join(", ")}
+                  </p>
+                  <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                    {card.detail}
+                  </p>
+                </div>
               </Link>
             ))}
           </div>

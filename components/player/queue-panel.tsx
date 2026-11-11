@@ -4,6 +4,7 @@ import { GripVertical, ListMusic, X } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { Artwork } from "@/components/music/artwork";
 import { useDismiss } from "@/lib/hooks/use-dismiss";
 import { usePlayerStore } from "@/lib/player/store";
 import { cn } from "@/lib/utils";
@@ -64,6 +65,13 @@ export function QueuePanel() {
                   )}
                 >
                   <GripVertical className="size-4 shrink-0 cursor-grab text-muted-foreground" aria-hidden />
+                  <Artwork
+                    src={track.artworkUrl}
+                    seed={track.id}
+                    alt=""
+                    decorative
+                    className="size-9 rounded-lg"
+                  />
                   <div className="min-w-0 flex-1">
                     <p className="truncate">{track.title}</p>
                     <p className="truncate text-xs text-muted-foreground">

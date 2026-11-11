@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
+import { Artwork } from "@/components/music/artwork";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -18,6 +19,7 @@ type PlaylistSummary = {
   name: string;
   slug: string;
   description: string | null;
+  coverUrl: string | null;
   isPublic: boolean;
   isCollaborative: boolean;
   isSmart: boolean;
@@ -69,6 +71,12 @@ function PlaylistCard({
   return (
     <div className="surface-card flex flex-col gap-3 p-4 transition hover:-translate-y-0.5 hover:border-accent/50">
       <Link href={`/playlists/${playlist.id}`} className="flex flex-col gap-2">
+        <Artwork
+          src={playlist.coverUrl}
+          seed={playlist.id}
+          alt={`${playlist.name} artwork`}
+          className="aspect-[2/1] w-full rounded-xl"
+        />
         <div className="flex items-start justify-between gap-2">
           <p className="font-display text-lg font-medium">{playlist.name}</p>
           <div className="flex shrink-0 items-center gap-1.5 text-muted-foreground">
